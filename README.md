@@ -49,10 +49,10 @@ cd FrameGrid
 git clone https://github.com/Javigracia/FrameGrid.git
 cd FrameGrid
 
-./install.sh
+bash install.sh
 ```
 
-`install.sh` copies FrameGrid to `~/.local/share/framegrid` and adds it to the application menu and the desktop. Run `./install.sh --uninstall` to remove it.
+`install.sh` copies FrameGrid to `~/.local/share/framegrid` and adds it to the application menu and the desktop. Run `bash install.sh --uninstall` to remove it.
 
 You can also run it without installing: `python3 framegrid.py`
 
@@ -82,7 +82,7 @@ python3 ~/.local/share/framegrid/framegrid.py --status
 Once live mode is active:
 
 ```bash
-./install.sh --steam
+bash install.sh --steam
 ```
 
 FrameGrid then appears in your library, and launching it from there opens the interface in Steam's own browser.
