@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<!-- FrameGrid — Copyright (C) 2026 Javier · SPDX-License-Identifier: GPL-3.0-or-later -->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FrameGrid</title>
+<style>
+:root{
+  --bg:#0f141b; --panel:#171e28; --panel2:#1e2733; --line:#2a3544; --text:#e6edf5; --dim:#8b9bb0;
+  --acc:#4fa3ff; --ok:#4cc38a; --warn:#f0b549; --bad:#ef6461; --r:10px;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font:15px/1.4 system-ui,"Noto Sans",sans-serif}
+button,input,select{font:inherit;color:inherit}
+button{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:9px 14px;cursor:pointer;min-height:40px}
+button:hover{border-color:var(--acc)}
+button.primary{background:var(--acc);border-color:var(--acc);color:#04121f;font-weight:600}
+button.danger{border-color:var(--bad);color:var(--bad)}
+button:disabled{opacity:.45;cursor:default}
+input[type=text],input[type=password],select{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 12px;min-height:40px;width:100%}
+label.chk{display:inline-flex;gap:6px;align-items:center;cursor:pointer;user-select:none}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--acc)}
+.app{display:grid;grid-template-rows:auto 1fr;height:100%}
+header{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line)}
+header h1{font-size:18px;margin:0;letter-spacing:.5px}
+header h1 small{color:var(--dim);font-weight:400;font-size:12px;margin-left:6px}
+.pill{padding:4px 10px;border-radius:99px;font-size:13px;border:1px solid var(--line)}
+.pill.live{color:var(--ok);border-color:var(--ok)} .pill.files{color:var(--acc);border-color:var(--acc)} .pill.limited{color:var(--warn);border-color:var(--warn)}
+.sp{flex:1}
+.main{display:grid;grid-template-columns:340px 1fr;min-height:0}
+aside{background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.side-top{padding:12px;display:flex;flex-direction:column;gap:8px;border-bottom:1px solid var(--line)}
+.seg{display:flex;gap:4px}
+.seg button{flex:1;padding:6px;min-height:34px;font-size:13px}
+.seg button.act{background:var(--acc);color:#04121f;border-color:var(--acc)}
+.list{overflow:auto;flex:1}
+.item{display:flex;gap:10px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line);cursor:pointer}
+.item:hover{background:var(--panel2)} .item.sel{background:#203247}
+.item .th{width:36px;height:54px;border-radius:4px;background:var(--panel2) center/cover;flex:none}
+.item .nm{flex:1;min-width:0}
+.item .nm b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .nm span{font-size:12px;color:var(--dim)}
+.dots{display:flex;gap:3px;margin-top:3px}
+.dots i{width:8px;height:8px;border-radius:2px;background:var(--line)} .dots i.y{background:var(--ok)}
+.bulk{padding:10px 12px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:8px;background:var(--panel2)}
+section{overflow:auto;min-height:0;padding:16px 20px}
+.tabs{display:flex;gap:6px;margin-bottom:14px}
+.tabs button.act{background:var(--acc);color:#04121f;border-color:var(--acc)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:14px}
+.card h2{margin:0 0 10px;font-size:16px}
+.muted{color:var(--dim);font-size:13px}
+.slots{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.slot{background:var(--bg);border:2px solid var(--line);border-radius:8px;padding:6px;display:flex;flex-direction:column;gap:6px;cursor:pointer}
+.slot.act{border-color:var(--acc)}
+.slot .pv{height:110px;border-radius:5px;background:#0a0e13 center/contain no-repeat;display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:12px}
+.slot .ft{display:flex;justify-content:space-between;align-items:center;font-size:13px}
+.slot .ft button{min-height:26px;padding:2px 8px;font-size:12px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.chip{padding:6px 12px;border-radius:99px;background:var(--panel2);border:1px solid var(--line);cursor:pointer;font-size:13px}
+.chip.act{border-color:var(--acc);color:var(--acc)}
+.grid{display:grid;gap:10px;margin-top:12px}
+.grid.capsule{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}
+.grid.wide{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+.grid.hero{grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
+.grid.logo{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+.grid.icon{grid-template-columns:repeat(auto-fill,minmax(90px,1fr))}
+.asset{position:relative;border-radius:6px;overflow:hidden;background:#0a0e13;border:2px solid transparent;cursor:pointer}
+.asset:hover{border-color:var(--acc)}
+.asset img{display:block;width:100%;height:auto}
+.grid.logo .asset{background:repeating-conic-gradient(#222b37 0 25%,#1a222c 0 50%) 0 0/20px 20px;padding:10px}
+.asset .meta{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,#000c);font-size:11px;padding:14px 6px 4px;color:#cfd8e3}
+.asset.busy{opacity:.4;pointer-events:none}
+.cols{display:flex;flex-direction:column;gap:6px}
+.col{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg);border:1px solid var(--line);border-radius:8px}
+.col .n{flex:1}
+.col .n span{color:var(--dim);font-size:12px;margin-left:6px}
+.col button{min-height:30px;padding:3px 10px;font-size:13px}
+.form{display:grid;grid-template-columns:180px 1fr;gap:10px;align-items:center;max-width:820px}
+.warnbox{border:1px solid var(--warn);color:var(--warn);border-radius:8px;padding:10px 12px;font-size:14px;margin-bottom:12px}
+#toast{position:fixed;right:18px;bottom:18px;display:flex;flex-direction:column;gap:8px;z-index:20}
+#toast div{background:var(--panel2);border:1px solid var(--line);border-left:4px solid var(--acc);padding:10px 14px;border-radius:8px;max-width:440px;box-shadow:0 6px 20px #0008}
+#toast div.err{border-left-color:var(--bad)} #toast div.ok{border-left-color:var(--ok)}
+.modal{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;z-index:10}
+.modal.show{display:flex}
+.modal .card{width:min(560px,92vw)}
+.empty{color:var(--dim);padding:30px;text-align:center}
+.editbanner{background:#13324a;border-bottom:1px solid var(--acc);padding:10px 12px;font-size:14px;display:flex;flex-direction:column;gap:8px}
+.editbanner b{color:var(--acc)}
+.item.incol{background:#132a1f}
+.item.incol .nm b::after{content:" ✓";color:var(--ok)}
+.col.editing{border-color:var(--acc);background:#13324a}
+.grid.local{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+.grid.local .asset{height:170px;display:flex;align-items:center;justify-content:center}
+.grid.local .asset img{max-height:150px;width:auto;max-width:100%;object-fit:contain}
+.asset.fit{border-color:#2f6b4f}
+.asset .ok{position:absolute;top:4px;right:4px;background:var(--ok);color:#04121f;font-size:11px;font-weight:700;border-radius:4px;padding:1px 5px}
+.crumb{font-family:monospace;font-size:13px;color:var(--dim);word-break:break-all}
+.srcTabs{display:flex;gap:6px;margin-bottom:10px}
+.srcTabs button.act{background:var(--acc);color:#04121f;border-color:var(--acc)}
+@media (max-width:900px){.main{grid-template-columns:1fr}.slots{grid-template-columns:repeat(3,1fr)} aside{max-height:40vh}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>FrameGrid<small id="ver"></small></h1>
+    <span id="steamPill" class="pill">Steam…</span>
+    <button id="btnCef" hidden>Activar modo en vivo</button>
+    <button id="btnSteam" hidden>Abrir Steam</button>
+    <span class="sp"></span>
+    <span class="muted" id="userLbl"></span>
+    <button id="btnSettings">Ajustes</button>
+    <button id="btnQuit" title="Cerrar FrameGrid">Salir</button>
+  </header>
+  <div class="main">
+    <aside>
+      <div class="side-top">
+        <input type="text" id="filter" placeholder="Filtrar biblioteca…">
+        <div class="seg" id="typeSeg">
+          <button data-t="shortcut" class="act">No-Steam</button>
+          <button data-t="steam">Steam</button>
+          <button data-t="all">Todos</button>
+        </div>
+        <div class="row" style="justify-content:space-between">
+          <label class="chk"><input type="checkbox" id="onlyMissing"> Solo con huecos</label>
+          <button id="btnSelAll" style="min-height:30px;padding:3px 10px;font-size:13px">Marcar todos</button>
+        </div>
+      </div>
+      <div class="editbanner" id="editBanner" hidden>
+        <div>Editando <b id="ebName"></b> · <span id="ebCount"></span></div>
+        <div class="muted">Marca o desmarca juegos para meterlos o sacarlos. Se guarda al momento.</div>
+        <button id="ebDone">Terminar</button>
+      </div>
+      <div class="list" id="list"></div>
+      <div class="bulk" id="bulk" hidden>
+        <div><b id="bulkN">0</b> marcados</div>
+        <div class="row">
+          <label class="chk"><input type="checkbox" id="bulkOverwrite"> Sobrescribir existentes</label>
+        </div>
+        <button class="primary" id="btnAuto">Auto-rellenar desde SteamGridDB</button>
+      </div>
+    </aside>
+    <section>
+      <div class="tabs" id="mainTabs">
+        <button data-p="art" class="act">Carátulas</button>
+        <button data-p="cols">Colecciones</button>
+        <button data-p="add">Añadir no-Steam</button>
+      </div>
+
+      <div id="p-art">
+        <div id="artEmpty" class="empty">Elige un juego o app de la lista.</div>
+        <div id="artBody" hidden>
+          <div class="card">
+            <div class="row" style="justify-content:space-between">
+              <h2 id="selName" style="margin:0"></h2>
+              <span class="muted" id="selMeta"></span>
+            </div>
+            <div class="slots" id="slots" style="margin-top:12px"></div>
+          </div>
+          <div class="srcTabs" id="srcTabs">
+            <button data-src="sgdb" class="act">SteamGridDB</button>
+            <button data-src="local">Mis imágenes</button>
+          </div>
+          <div id="src-local" hidden>
+            <div class="card">
+              <div class="row" style="justify-content:space-between">
+                <h2 style="margin:0">Mis imágenes</h2>
+                <div class="row">
+                  <label class="chk"><input type="checkbox" id="lFit"> Solo las que encajan</label>
+                  <button id="lDefault" title="Abrir esta carpeta por defecto">Fijar carpeta</button>
+                  <button class="primary" id="lUploadBtn">Subir archivo…</button>
+                  <input type="file" id="lUpload" accept="image/png,image/jpeg" hidden>
+                </div>
+              </div>
+              <div class="crumb" id="lDir" style="margin-top:8px"></div>
+              <div class="chips" id="lDirs"></div>
+              <div class="muted" style="margin-top:8px">Toca una imagen para instalarla en el hueco seleccionado arriba. Solo PNG y JPG. <span id="lHint"></span></div>
+              <div class="grid local" id="lFiles"></div>
+            </div>
+          </div>
+          <div id="src-sgdb">
+          <div class="card">
+            <h2>Buscar en SteamGridDB</h2>
+            <div class="row">
+              <input type="text" id="q" style="flex:1;min-width:200px" placeholder="Nombre del juego">
+              <button class="primary" id="btnSearch">Buscar</button>
+            </div>
+            <div class="chips" id="games"></div>
+          </div>
+          <div class="card" id="assetsCard" hidden>
+            <div class="row" style="justify-content:space-between">
+              <h2 id="assetsTitle" style="margin:0"></h2>
+              <div class="row">
+                <label class="chk"><input type="checkbox" id="fAnim"> Animadas</label>
+                <label class="chk"><input type="checkbox" id="fHumor"> Humor</label>
+                <label class="chk"><input type="checkbox" id="fNsfw"> NSFW</label>
+              </div>
+            </div>
+            <div class="muted" style="margin-top:6px">Toca una imagen para instalarla en el hueco seleccionado arriba.</div>
+            <div class="grid" id="assets"></div>
+            <div class="row" style="justify-content:center;margin-top:12px"><button id="btnMore">Cargar más</button></div>
+          </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="p-cols" hidden>
+        <div class="warnbox limitedWarn" hidden>El modo en vivo no está activo: con Steam abierto no se pueden tocar colecciones ni accesos directos. Pulsa «Activar modo en vivo» arriba y reinicia la Steam Frame.</div>
+        <div class="card">
+          <h2>Colecciones de este equipo</h2>
+          <div class="muted" id="colsHelp" style="margin-bottom:10px"></div>
+          <div class="cols" id="cols"></div>
+          <div class="row" style="margin-top:12px">
+            <input type="text" id="newCol" placeholder="Nueva colección (p. ej. Ports, Mis juegos, Emuladores)" style="flex:1">
+            <button class="primary" id="btnNewCol">Crear</button>
+          </div>
+        </div>
+        <div class="card"><div class="muted">Las colecciones con apps no-Steam usan el appid local de cada acceso directo, por eso no se pueden preparar desde otro PC: hay que editarlas en la propia máquina. En modo en vivo los cambios los hace el propio Steam y se ven al momento.</div></div>
+      </div>
+
+      <div id="p-add" hidden>
+        <div class="warnbox limitedWarn" hidden>El modo en vivo no está activo: con Steam abierto no se pueden añadir accesos directos. Pulsa «Activar modo en vivo» arriba y reinicia la Steam Frame.</div>
+        <div class="card">
+          <h2>Añadir app o juego no-Steam</h2>
+          <div class="form">
+            <label>Nombre</label><input type="text" id="aName" placeholder="Mi juego">
+            <label>Ejecutable</label><input type="text" id="aExe" placeholder="/home/deck/Games/MiJuego/MiJuego.arm64">
+            <label>Carpeta de inicio</label><input type="text" id="aDir" placeholder="(vacío = carpeta del ejecutable)">
+            <label>Opciones de lanzamiento</label><input type="text" id="aOpts" placeholder="">
+            <span></span><div class="row"><button class="primary" id="btnAdd">Añadir a Steam</button>
+              <label class="chk"><input type="checkbox" id="aAuto" checked> Buscar carátulas al añadir</label></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="modal" id="settings">
+  <div class="card">
+    <h2>Ajustes</h2>
+    <div class="cols">
+      <label>API key de SteamGridDB <span class="muted">(steamgriddb.com → Preferencias → API)</span></label>
+      <input type="password" id="sKey" placeholder="pega aquí tu API key">
+      <label>Usuario de Steam</label>
+      <select id="sUser"></select>
+      <label>Carpeta de Steam <span class="muted">(vacío = autodetectar)</span></label>
+      <input type="text" id="sRoot">
+      <div class="muted" id="sRootNow"></div>
+    </div>
+    <div class="row" style="justify-content:flex-end;margin-top:14px">
+      <button id="sCancel">Cancelar</button><button class="primary" id="sSave">Guardar</button>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+const SLOTS = [
+  ["capsule","Póster","600×900"], ["wide","Horizontal","920×430"], ["hero","Héroe","1920×620"],
+  ["logo","Logo","transparente"], ["icon","Icono","cuadrado"]];
+const S = {state:null, lib:[], type:"shortcut", sel:null, marked:new Set(), slot:"capsule",
+           game:null, page:0, cols:[], bust:Date.now()};
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function toast(msg, cls="", ms=4500){
+  const d=document.createElement("div"); d.className=cls; d.textContent=msg; $("toast").appendChild(d);
+  setTimeout(()=>d.remove(), ms);
+}
+async function api(path, body){
+  const opt = body===undefined ? {} : {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)};
+  const r = await fetch(path, opt);
+  let j; try{ j = await r.json(); }catch{ throw new Error("HTTP "+r.status); }
+  if(j && j.error) throw new Error(j.error);
+  return j;
+}
+
+// ---------------------------------------------------------- estado / Steam
+const MODE_TXT = {live:"En vivo", files:"Steam cerrado · archivos", limited:"Sin modo en vivo"};
+const MODE_TIP = {live:"Conectado al Steam abierto: los cambios se ven al momento.",
+  files:"Steam está cerrado: FrameGrid edita sus archivos directamente.",
+  limited:"Steam está abierto pero su depurador CEF no está activo: solo se pueden guardar carátulas (se verán al reiniciar)."};
+async function refreshState(){
+  S.state = await api("/api/state");
+  $("ver").textContent = "v"+S.state.version;
+  const m = S.state.mode;
+  $("steamPill").className = "pill "+m; $("steamPill").textContent = MODE_TXT[m]; $("steamPill").title = MODE_TIP[m];
+  $("btnCef").hidden = m!=="limited";
+  $("btnCef").textContent = S.state.cef_flag ? "Modo en vivo: reinicia la Frame" : "Activar modo en vivo";
+  $("btnSteam").hidden = m!=="files";
+  document.querySelectorAll(".limitedWarn").forEach(e=>e.hidden = m!=="limited");
+  const u = (S.state.users||[]).find(u=>u.id===S.state.user);
+  $("userLbl").textContent = u ? `${u.name} (${u.id})` : "sin usuario";
+}
+$("btnCef").onclick = async ()=>{
+  try{ const r = await api("/api/cef/enable",{});
+    toast("Depurador CEF activado ("+r.files.length+" archivo). Reinicia la Steam Frame y vuelve a abrir FrameGrid: el indicador pasará a «En vivo».","ok",12000);
+    toast("Si tras reiniciar sigue sin modo en vivo: Ajustes de Steam › Sistema › Modo desarrollador, y luego Desarrollador › Depuración remota CEF.","",15000);
+    await refreshState(); }catch(e){ toast(e.message,"err"); }
+};
+$("btnSteam").onclick = async ()=>{
+  $("btnSteam").disabled = true; toast("Abriendo Steam…");
+  try{ await api("/api/steam/start", {}); }catch(e){ toast(e.message,"err"); }
+  setTimeout(async()=>{ await refreshState(); $("btnSteam").disabled=false; }, 5000);
+};
+$("btnQuit").onclick = async ()=>{ await api("/api/quit",{}); document.body.innerHTML='<div class="empty">FrameGrid cerrado. Ya puedes cerrar esta pestaña.</div>'; };
+
+// ---------------------------------------------------------- ajustes
+function openSettings(){
+  $("sKey").value = ""; $("sKey").placeholder = S.state.has_key ? "•••••• (guardada; escribe para cambiarla)" : "pega aquí tu API key";
+  $("sUser").innerHTML = (S.state.users||[]).map(u=>`<option value="${u.id}" ${u.id===S.state.user?"selected":""}>${esc(u.name)} — ${u.id}</option>`).join("");
+  $("sRoot").value = ""; $("sRootNow").textContent = "Detectada: "+(S.state.steam_root||"ninguna");
+  $("settings").classList.add("show");
+}
+$("btnSettings").onclick = openSettings;
+$("sCancel").onclick = ()=>$("settings").classList.remove("show");
+$("sSave").onclick = async ()=>{
+  const b = {user:$("sUser").value};
+  if($("sKey").value.trim()) b.api_key = $("sKey").value.trim();
+  if($("sRoot").value.trim()) b.steam_root = $("sRoot").value.trim();
+  try{ S.state = await api("/api/config", b); $("settings").classList.remove("show"); toast("Ajustes guardados","ok");
+       await refreshState(); await loadLib(); }catch(e){ toast(e.message,"err"); }
+};
+
+// ---------------------------------------------------------- biblioteca
+async function loadLib(){
+  try{ S.lib = await api("/api/library"); }catch(e){ S.lib=[]; toast(e.message,"err"); }
+  S.bust = Date.now(); renderList();
+  if(S.sel){ const s=S.lib.find(x=>x.appid===S.sel.appid); if(s){S.sel=s; renderSlots();} }
+}
+function visible(){
+  const f = $("filter").value.toLowerCase(), miss=$("onlyMissing").checked;
+  return S.lib.filter(it => (S.type==="all"||it.type===S.type) && (!f||it.name.toLowerCase().includes(f))
+                          && (!miss || Object.values(it.art).some(v=>!v)));
+}
+function editCol(){ return S.editCol ? S.cols.find(c=>c.id===S.editCol) : null; }
+function renderList(){
+  const v = visible(), ec = editCol();
+  const on = it => ec ? ec.added.includes(it.appid) : S.marked.has(it.appid);
+  $("list").innerHTML = v.length ? v.map(it=>`
+    <div class="item ${S.sel&&S.sel.appid===it.appid?"sel":""} ${ec&&on(it)?"incol":""}" data-id="${it.appid}">
+      <input type="checkbox" data-mark="${it.appid}" ${on(it)?"checked":""}>
+      <div class="th" style="${it.art.capsule?`background-image:url('/api/art/${it.appid}/capsule?t=${S.bust}')`:""}"></div>
+      <div class="nm"><b>${esc(it.name)}</b><span>${it.type==="shortcut"?"No-Steam":"Steam"} · ${it.appid}</span>
+        <div class="dots">${SLOTS.map(([k,l])=>`<i class="${it.art[k]?"y":""}" title="${l}"></i>`).join("")}</div></div>
+    </div>`).join("") : `<div class="empty">Nada por aquí.</div>`;
+  $("bulk").hidden = !!ec || S.marked.size===0; $("bulkN").textContent = S.marked.size;
+  $("editBanner").hidden = !ec;
+  $("btnSelAll").textContent = ec ? "Meter todos" : "Marcar todos";
+  if(ec){ $("ebName").textContent = "«"+ec.name+"»"; $("ebCount").textContent = ec.added.length+" juegos"; }
+}
+$("list").onclick = async e=>{
+  const m = e.target.dataset.mark;
+  if(m){ const id=+m, ec=editCol();
+    if(ec){ await setMembers(ec, [id], e.target.checked); return; }
+    S.marked.has(id)?S.marked.delete(id):S.marked.add(id); renderList(); return; }
+  const it = e.target.closest(".item"); if(!it) return;
+  select(S.lib.find(x=>x.appid===+it.dataset.id));
+};
+$("filter").oninput = renderList; $("onlyMissing").onchange = renderList;
+$("typeSeg").onclick = e=>{ const t=e.target.dataset.t; if(!t) return; S.type=t;
+  [...$("typeSeg").children].forEach(b=>b.classList.toggle("act",b.dataset.t===t)); renderList(); };
+$("btnSelAll").onclick = async ()=>{ const v=visible(), ec=editCol();
+  if(ec){ const ids=v.map(i=>i.appid).filter(id=>!ec.added.includes(id));
+    if(!ids.length){ toast("Ya están todos dentro"); return; }
+    if(confirm(`¿Meter ${ids.length} juegos en «${ec.name}»?`)) await setMembers(ec, ids, true); return; }
+  const all=v.every(i=>S.marked.has(i.appid));
+  v.forEach(i=> all?S.marked.delete(i.appid):S.marked.add(i.appid)); renderList(); };
+
+// ---------------------------------------------------------- carátulas
+function select(it){
+  S.sel = it; S.game=null; renderList();
+  $("artEmpty").hidden = true; $("artBody").hidden = false;
+  $("selName").textContent = it.name;
+  $("selMeta").textContent = `${it.type==="shortcut"?"No-Steam":"Steam"} · appid ${it.appid}`;
+  $("q").value = it.name; $("games").innerHTML=""; $("assetsCard").hidden = true;
+  renderSlots();
+  if(S.state.has_key) autoSearch();
+  if(S.src==="local") renderLocal();
+}
+function renderSlots(){
+  const it=S.sel;
+  const noIcon = it.type==="steam" && S.state.mode!=="live";
+  if(noIcon && S.slot==="icon") S.slot="capsule";
+  $("slots").innerHTML = SLOTS.filter(([k])=>!(k==="icon"&&noIcon)).map(([k,l,d])=>`
+    <div class="slot ${S.slot===k?"act":""}" data-slot="${k}">
+      <div class="pv" style="${it.art[k]?`background-image:url('/api/art/${it.appid}/${k}?t=${S.bust}')`:""}">${it.art[k]?"":"vacío"}</div>
+      <div class="ft"><span><b>${l}</b><br><span class="muted">${d}</span></span>
+        ${it.art[k]?`<button data-rm="${k}" title="Quitar">✕</button>`:""}</div>
+    </div>`).join("");
+}
+$("slots").onclick = async e=>{
+  const rm = e.target.dataset.rm;
+  if(rm){ e.stopPropagation();
+    try{ await api("/api/remove",{appid:S.sel.appid, slot:rm, kind:S.sel.type}); toast("Imagen quitada"); await loadLib(); }
+    catch(err){ toast(err.message,"err"); } return; }
+  const s = e.target.closest(".slot"); if(!s) return;
+  S.slot = s.dataset.slot; renderSlots(); if(S.game) loadAssets(true); renderLocal();
+};
+async function autoSearch(){
+  if(S.sel.type==="steam"){
+    try{ const g = await api("/api/sgdb/steam?appid="+S.sel.appid); if(g&&g.id){ renderGames([g]); pickGame(g); return; } }catch{}
+  }
+  doSearch();
+}
+async function doSearch(){
+  const q = $("q").value.trim(); if(!q) return;
+  $("games").innerHTML = '<span class="muted">Buscando…</span>';
+  try{ const r = await api("/api/sgdb/search?q="+encodeURIComponent(q)); renderGames(r);
+       if(r.length) pickGame(r[0]); else $("assetsCard").hidden = true; }
+  catch(e){ $("games").innerHTML=""; toast(e.message,"err"); }
+}
+function renderGames(list){
+  $("games").innerHTML = list.length ? list.map(g=>`<span class="chip" data-g="${g.id}">${esc(g.name)}${g.release_date?` <span class="muted">(${new Date(g.release_date*1000).getFullYear()})</span>`:""}${g.verified?" ✓":""}</span>`).join("")
+    : '<span class="muted">Sin resultados. Prueba con otro nombre.</span>';
+  $("games")._list = list;
+}
+$("games").onclick = e=>{ const c=e.target.closest(".chip"); if(!c) return; pickGame($("games")._list.find(g=>g.id===+c.dataset.g)); };
+$("btnSearch").onclick = doSearch; $("q").onkeydown = e=>{ if(e.key==="Enter") doSearch(); };
+function pickGame(g){
+  S.game = g; [...$("games").children].forEach(c=>c.classList.toggle("act", +c.dataset.g===g.id));
+  loadAssets(true);
+}
+["fAnim","fHumor","fNsfw"].forEach(id=>$(id).onchange=()=>S.game&&loadAssets(true));
+async function loadAssets(reset){
+  if(reset){ S.page=0; $("assets").innerHTML=""; }
+  const lbl = SLOTS.find(s=>s[0]===S.slot)[1];
+  $("assetsCard").hidden=false; $("assetsTitle").textContent = `${lbl} · ${S.game.name}`;
+  $("assets").className = "grid "+S.slot; $("btnMore").disabled = true;
+  const qs = new URLSearchParams({slot:S.slot, game:S.game.id, page:S.page,
+    animated:$("fAnim").checked?1:0, humor:$("fHumor").checked?1:0, nsfw:$("fNsfw").checked?1:0});
+  try{
+    const r = await api("/api/sgdb/assets?"+qs);
+    if(reset && !r.length) $("assets").innerHTML = '<div class="empty">No hay imágenes de este tipo.</div>';
+    $("assets").insertAdjacentHTML("beforeend", r.map(a=>`
+      <div class="asset" data-url="${esc(a.url)}"><img loading="lazy" src="${esc(a.thumb)}">
+        <div class="meta">${a.width}×${a.height}${a.style?" · "+esc(a.style):""}${a.author?" · "+esc(a.author):""}</div></div>`).join(""));
+    $("btnMore").disabled = r.length < 50;
+  }catch(e){ toast(e.message,"err"); }
+}
+$("btnMore").onclick = ()=>{ S.page++; loadAssets(false); };
+$("assets").onclick = async e=>{
+  const a = e.target.closest(".asset"); if(!a) return;
+  a.classList.add("busy");
+  try{
+    await applied(await api("/api/apply",{appid:S.sel.appid, slot:S.slot, url:a.dataset.url, kind:S.sel.type}));
+  }catch(err){ toast(err.message,"err"); }
+  a.classList.remove("busy");
+};
+
+// ---------------------------------------------------------- mis imágenes
+const RATIO = {capsule:600/900, wide:920/430, hero:1920/620, icon:1};
+S.src = "sgdb"; S.ldir = null;
+function fits(f){ const r=RATIO[S.slot]; if(!r||!f.w||!f.h) return S.slot==="logo"; return Math.abs(f.w/f.h - r)/r < 0.08; }
+$("srcTabs").onclick = e=>{ const src=e.target.dataset.src; if(!src) return; S.src=src;
+  [...$("srcTabs").children].forEach(b=>b.classList.toggle("act",b.dataset.src===src));
+  $("src-local").hidden = src!=="local"; $("src-sgdb").hidden = src!=="sgdb";
+  if(src==="local") loadLocal(S.ldir); };
+async function loadLocal(dir){
+  try{
+    const r = await api("/api/local/list"+(dir?"?dir="+encodeURIComponent(dir):""));
+    S.ldir = r.dir; S.lfiles = r.files;
+    $("lDir").textContent = r.dir.replace(r.home,"~");
+    $("lDirs").innerHTML = (r.parent?`<span class="chip" data-d="${esc(r.parent)}">⬆ Carpeta anterior</span>`:"")
+      + r.dirs.map(n=>`<span class="chip" data-d="${esc(r.dir+"/"+n)}">📁 ${esc(n)}</span>`).join("");
+    renderLocal();
+  }catch(e){ toast(e.message,"err"); }
+}
+function renderLocal(){
+  if(!S.lfiles) return;
+  const only = $("lFit").checked;
+  const lbl = SLOTS.find(x=>x[0]===S.slot);
+  $("lHint").textContent = `Hueco actual: ${lbl[1]} (${lbl[2]}).`;
+  const fl = S.lfiles.filter(f=>!only||fits(f));
+  $("lFiles").innerHTML = fl.length ? fl.map(f=>{
+    const bad = f.ext==="webp"||f.ext==="gif";
+    return `<div class="asset ${fits(f)?"fit":""}" data-path="${esc(f.path)}" title="${esc(f.name)}">
+      <img loading="lazy" src="/api/local/file?path=${encodeURIComponent(f.path)}">
+      ${fits(f)&&S.slot!=="logo"?'<span class="ok">encaja</span>':""}
+      <div class="meta">${esc(f.name)}${f.w?` · ${f.w}×${f.h}`:""}${bad?" · no válido en Steam":""}</div></div>`;}).join("")
+    : `<div class="empty">${S.lfiles.length?"Ninguna imagen tiene la proporción de este hueco.":"No hay imágenes en esta carpeta."}</div>`;
+}
+$("lFit").onchange = renderLocal;
+$("lDirs").onclick = e=>{ const c=e.target.closest(".chip"); if(c) loadLocal(c.dataset.d); };
+$("lDefault").onclick = async ()=>{ try{ await api("/api/config",{images_dir:S.ldir}); toast("Esta carpeta se abrirá por defecto","ok"); }catch(e){ toast(e.message,"err"); } };
+async function applied(r){
+  toast(r.note || (S.state.mode==="live" ? "Imagen aplicada en Steam." : "Imagen instalada. Se verá al abrir Steam."), r.note?"":"ok", r.note?8000:4500);
+  await loadLib();
+}
+$("lFiles").onclick = async e=>{
+  const a=e.target.closest(".asset"); if(!a) return;
+  a.classList.add("busy");
+  try{ await applied(await api("/api/apply_local",{appid:S.sel.appid, slot:S.slot, path:a.dataset.path, kind:S.sel.type})); }
+  catch(err){ toast(err.message,"err"); }
+  a.classList.remove("busy");
+};
+$("lUploadBtn").onclick = ()=>$("lUpload").click();
+$("lUpload").onchange = async ()=>{
+  const f=$("lUpload").files[0]; if(!f) return;
+  const buf = new Uint8Array(await f.arrayBuffer());
+  let bin=""; for(let i=0;i<buf.length;i+=0x8000) bin+=String.fromCharCode.apply(null, buf.subarray(i,i+0x8000));
+  try{ await applied(await api("/api/upload",{appid:S.sel.appid, slot:S.slot, data:btoa(bin), kind:S.sel.type})); }
+  catch(err){ toast(err.message,"err"); }
+  $("lUpload").value="";
+};
+
+// ---------------------------------------------------------- auto-rellenar
+$("btnAuto").onclick = async ()=>{
+  if(!S.state.has_key){ openSettings(); return; }
+  const ids=[...S.marked]; $("btnAuto").disabled=true; $("btnAuto").textContent=`Procesando ${ids.length}…`;
+  let ok=0, fail=[];
+  // de 5 en 5 para ir viendo progreso
+  for(let i=0;i<ids.length;i+=5){
+    try{
+      const rep = await api("/api/autofill",{appids:ids.slice(i,i+5), overwrite:$("bulkOverwrite").checked});
+      rep.forEach(r=>{ if(r.error) fail.push(`${r.name}: ${r.error}`); else ok++; });
+    }catch(e){ fail.push(e.message); }
+    $("btnAuto").textContent=`Procesando ${Math.min(i+5,ids.length)}/${ids.length}…`;
+  }
+  $("btnAuto").disabled=false; $("btnAuto").textContent="Auto-rellenar desde SteamGridDB";
+  toast(`Auto-rellenado: ${ok} correctos${fail.length?`, ${fail.length} con problemas`:""}.`, fail.length?"":"ok");
+  fail.slice(0,5).forEach(f=>toast(f,"err",9000));
+  await loadLib();
+};
+
+// ---------------------------------------------------------- colecciones
+async function loadCols(){
+  try{ S.cols = (await api("/api/collections")).items; }catch(e){ S.cols=[]; toast(e.message,"err"); }
+  if(S.editCol && !editCol()) S.editCol=null;
+  renderCols(); renderList();
+}
+async function setMembers(c, ids, member){
+  // actualización optimista: la lista responde al instante
+  ids.forEach(id=>{ const k=c.added.indexOf(id); if(member&&k<0) c.added.push(id); if(!member&&k>=0) c.added.splice(k,1); });
+  renderList(); renderCols();
+  try{ await api("/api/collections/member",{id:c.id, appids:ids, member}); }
+  catch(err){ toast(err.message,"err"); await loadCols(); }
+}
+function startEdit(id){
+  S.editCol = id;
+  // en edición conviene ver todo: No-Steam y Steam
+  S.type="all"; [...$("typeSeg").children].forEach(b=>b.classList.toggle("act",b.dataset.t==="all"));
+  renderCols(); renderList();
+}
+function stopEdit(){ S.editCol=null; renderCols(); renderList(); }
+$("ebDone").onclick = stopEdit;
+function renderCols(){
+  const dis = S.state.mode==="limited" ? "disabled" : "";
+  const ec = editCol();
+  $("colsHelp").innerHTML = ec
+    ? `Editando <b>${esc(ec.name)}</b>: marca en la lista de la izquierda los juegos que quieras dentro. Pulsa «Terminar» cuando acabes.`
+    : `Pulsa <b>Editar juegos</b> en una colección y marca sus juegos en la lista de la izquierda.`;
+  $("cols").innerHTML = S.cols.map(c=>`<div class="col ${S.editCol===c.id?"editing":""}">
+      <div class="n">${esc(c.name)}<span>${c.dynamic?"dinámica (se edita en Steam)":c.added.length+" juegos"}</span></div>
+      ${c.dynamic?"":(S.editCol===c.id
+          ? `<button class="primary" data-stop="1">Terminar</button>`
+          : `<button class="primary" data-edit="${esc(c.id)}" ${dis}>Editar juegos</button>`)}
+      ${c.builtin||c.dynamic?"":`<button data-ren="${esc(c.id)}" ${dis}>Renombrar</button><button class="danger" data-del="${esc(c.id)}" ${dis}>Borrar</button>`}
+    </div>`).join("");
+}
+$("cols").onclick = async e=>{
+  const d=e.target.dataset;
+  try{
+    if(d.edit){ startEdit(d.edit); return; }
+    if(d.stop){ stopEdit(); return; }
+    if(d.ren){
+      const c=S.cols.find(x=>x.id===d.ren); const n=prompt("Nuevo nombre", c.name); if(!n) return;
+      await api("/api/collections/rename",{id:d.ren, name:n});
+    }else if(d.del){
+      const c=S.cols.find(x=>x.id===d.del); if(!confirm(`¿Borrar la colección «${c.name}»? Los juegos no se borran.`)) return;
+      if(S.editCol===d.del) S.editCol=null;
+      await api("/api/collections/delete",{id:d.del});
+    }else return;
+    await loadCols();
+  }catch(err){ toast(err.message,"err"); await loadCols(); }
+};
+$("btnNewCol").onclick = async ()=>{
+  const n=$("newCol").value.trim(); if(!n) return;
+  try{ const r = await api("/api/collections/create",{name:n, appids:[...S.marked]}); $("newCol").value="";
+       S.marked.clear(); await loadCols();
+       if(r.id && S.cols.find(c=>c.id===r.id)){ startEdit(r.id); toast(`Colección «${n}» creada. Ahora marca sus juegos en la lista.`,"ok",7000); }
+       else toast("Colección creada","ok");
+  }catch(e){ toast(e.message,"err"); }
+};
+$("newCol").onkeydown = e=>{ if(e.key==="Enter") $("btnNewCol").click(); };
+
+// ---------------------------------------------------------- añadir no-Steam
+$("btnAdd").onclick = async ()=>{
+  const name=$("aName").value.trim(), exe=$("aExe").value.trim();
+  if(!name||!exe){ toast("Nombre y ejecutable son obligatorios","err"); return; }
+  try{
+    const r = await api("/api/shortcut/add",{name, exe, start_dir:$("aDir").value.trim(), launch_options:$("aOpts").value.trim()});
+    toast(`Añadido «${name}» (appid ${r.appid})`,"ok");
+    if($("aAuto").checked && S.state.has_key){
+      const rep = await api("/api/autofill",{appids:[r.appid]});
+      if(rep[0]&&rep[0].error) toast("Carátulas: "+rep[0].error,"err"); else toast("Carátulas descargadas","ok");
+    }
+    ["aName","aExe","aDir","aOpts"].forEach(id=>$(id).value="");
+    await loadLib();
+  }catch(e){ toast(e.message,"err"); }
+};
+
+// ---------------------------------------------------------- pestañas
+$("mainTabs").onclick = e=>{ const p=e.target.dataset.p; if(!p) return;
+  [...$("mainTabs").children].forEach(b=>b.classList.toggle("act",b.dataset.p===p));
+  ["art","cols","add"].forEach(x=>$("p-"+x).hidden = x!==p);
+  if(p!=="cols" && S.editCol) stopEdit();
+  if(p==="cols") loadCols();
+};
+
+(async ()=>{ await refreshState(); if(!S.state.has_key) openSettings(); await loadLib(); setInterval(async()=>{
+  const was=S.state.mode; await refreshState().catch(()=>{});
+  if(was!==S.state.mode){ if(!$("p-cols").hidden) loadCols(); if(S.sel) renderSlots(); } }, 5000); })();
+</script>
+</body>
+</html>
