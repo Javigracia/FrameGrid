@@ -52,7 +52,7 @@ cd FrameGrid
 bash install.sh
 ```
 
-`bash install.sh` copia FrameGrid en `~/.local/share/framegrid` y lo añade al menú de aplicaciones y al escritorio. Para desinstalarlo: `bash install.sh --uninstall`.
+`install.sh` copia FrameGrid en `~/.local/share/framegrid` y lo añade al menú de aplicaciones y al escritorio. Para desinstalarlo: `bash install.sh --uninstall`.
 
 También puedes ejecutarlo sin instalar: `python3 framegrid.py`
 
