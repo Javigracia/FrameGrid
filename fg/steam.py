@@ -109,7 +109,7 @@ def start_steam():
 
 
 def shortcut_appid(exe: str, name: str) -> int:
-    """AppID clásico de shortcuts: crc32(exe+nombre) | 0x80000000."""
+    """Classic shortcut AppID: crc32(exe+name) | 0x80000000."""
     return (zlib.crc32((exe + name).encode("utf-8")) & 0xFFFFFFFF) | 0x80000000
 
 
