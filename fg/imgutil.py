@@ -1,6 +1,6 @@
 # FrameGrid — Copyright (C) 2026 Javier
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""Dependency-free image utilities: detect format by signature and read PNG/JPEG dimensions."""
+"""Dependency-free image utilities: file type detection by signature and PNG/JPEG dimensions."""
 from __future__ import annotations
 
 import os
@@ -24,7 +24,7 @@ def kind(data: bytes) -> str | None:
 
 
 def size(path: Path) -> tuple[int, int] | None:
-    """(width, height), reading only the header."""
+    """(width, height), reading only the file header."""
     try:
         with open(path, "rb") as f:
             head = f.read(32)
@@ -65,7 +65,7 @@ def default_pictures_dir() -> Path:
             return Path(out)
     except (OSError, subprocess.TimeoutExpired):
         pass
-    for name in ("Images", "Pictures", "Images"):
+    for name in ("Imágenes", "Pictures", "Imagenes"):
         if (home / name).is_dir():
             return home / name
     return home
@@ -76,7 +76,7 @@ def safe_path(p: str | os.PathLike) -> Path:
     home = Path.home().resolve()
     rp = Path(p).expanduser().resolve()
     if rp != home and home not in rp.parents:
-        raise PermissionError("Only images from your home directory can be used.")
+        raise PermissionError("Only images in your home directory can be used.")
     return rp
 
 
