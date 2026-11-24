@@ -210,7 +210,7 @@ section{overflow:auto;min-height:0;padding:16px 20px}
       <div id="p-cols" hidden>
         <div class="warnbox limitedWarn" hidden>Live mode is not active: collections and shortcuts cannot be changed while Steam is running. Click “Enable live mode” above and restart Steam Frame.</div>
         <div class="card">
-          <h2>Collections de este equipo</h2>
+          <h2>Collections on this device</h2>
           <div class="muted" id="colsHelp" style="margin-bottom:10px"></div>
           <div class="cols" id="cols"></div>
           <div class="row" style="margin-top:12px">
@@ -558,7 +558,7 @@ function renderCols(){
       <div class="n">${esc(c.name)}<span>${c.dynamic?"dynamic (edit in Steam)":c.added.length+" games"}</span></div>
       ${c.dynamic?"":(S.editCol===c.id
           ? `<button class="primary" data-stop="1">Done</button>`
-          : `<button class="primary" data-edit="${esc(c.id)}" ${dis}>Editar games</button>`)}
+          : `<button class="primary" data-edit="${esc(c.id)}" ${dis}>Edit games</button>`)}
       ${c.builtin||c.dynamic?"":`<button data-ren="${esc(c.id)}" ${dis}>Rename</button><button class="danger" data-del="${esc(c.id)}" ${dis}>Delete</button>`}
     </div>`).join("");
 }
