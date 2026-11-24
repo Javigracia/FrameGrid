@@ -109,7 +109,7 @@ class Collections:
             except Exception:
                 pass
 
-    # ------------------------------------------------ consulta
+    # ------------------------------------------------ lookup
     def _find(self, key):
         for pair in self._entries:
             if pair[0] == key:
