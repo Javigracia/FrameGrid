@@ -75,7 +75,7 @@ def dumps_binary(obj: dict) -> bytes:
                     iv -= 0x100000000
                 buf.append(0x02); w_str(k); buf.extend(struct.pack("<i", iv))
             else:
-                raise TypeError(f"No serializable en VDF: {k}={v!r}")
+                raise TypeError(f"Value cannot be serialized to VDF: {k}={v!r}")
         buf.append(0x08)
 
     w_map(obj)
