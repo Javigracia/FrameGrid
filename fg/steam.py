@@ -14,13 +14,13 @@ from . import vdf
 
 STEAMID64_BASE = 76561197960265728
 
-# File name in config/grid for each image type ({id} = unsigned app ID)
+# Filename in config/grid for each artwork type ({id} = unsigned app ID)
 SLOTS = {
-    "capsule": "{id}p",      # vertical poster 600x900
-    "wide": "{id}",          # horizontal capsule 920x430
+    "capsule": "{id}p",      # portrait poster 600x900
+    "wide": "{id}",          # landscape capsule 920x430
     "hero": "{id}_hero",     # header banner 1920x620
-    "logo": "{id}_logo",     # transparent logo
-    "icon": "{id}_icon",     # icon (shortcuts: also referenced in shortcuts.vdf)
+    "logo": "{id}_logo",     # logo transparente
+    "icon": "{id}_icon",     # icon (shortcuts are also referenced in shortcuts.vdf)
 }
 IMG_EXTS = ("png", "jpg", "jpeg", "webp", "gif", "ico")
 
@@ -214,7 +214,7 @@ class SteamUser:
         return True
 
     def sync_shortcut_icons(self) -> int:
-        """Point each shortcut's icon field to its <appid>_icon.* file in the grid folder."""
+        """Points each shortcut's icon field to its <appid>_icon.* file in the grid folder."""
         data = self.load_shortcuts()
         changed = 0
         for e in data.get("shortcuts", {}).values():
@@ -258,7 +258,7 @@ class SteamUser:
         out.sort(key=lambda g: g["name"].lower())
         return out
 
-    # ------------------------------------------------ images
+    # ------------------------------------------------ artwork
     def art_path(self, appid: int, slot: str) -> Path | None:
         base = SLOTS[slot].format(id=appid)
         for ext in IMG_EXTS:
@@ -289,8 +289,8 @@ class SteamUser:
         return dest
 
     def poison_steam_icon(self, appid: int, icon_hash: str, data: bytes) -> Path:
-        """Steam game icon: replace its cache file (decky-steamgriddb/SGDBoop method).
-        Write to a temporary file and rename it, because Steam restores the original if it detects a direct write."""
+        """Steam game icon: replace its cache file (the decky-steamgriddb/SGDBoop method).
+        Se escribe a un temporal y se renombra, porque Steam restaura el original si ve que se escribe directamente."""
         d = self.root / "appcache" / "librarycache" / str(appid)
         d.mkdir(parents=True, exist_ok=True)
         dest = d / f"{icon_hash}.jpg"
