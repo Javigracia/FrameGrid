@@ -1,13 +1,13 @@
 # FrameGrid — Copyright (C) 2026 Javier
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""Colecciones de la biblioteca de Steam (userdata/<id>/config/cloudstorage).
+"""Steam library collections (userdata/<id>/config/cloudstorage).
 
 Steam guarda cada colección como una entrada "user-collections.<id>" en
 cloud-storage-namespace-1.json. El valor es un JSON en texto:
   {"id": "uc-xxxx", "name": "Ports", "added": [appid, ...], "removed": []}
-Las colecciones dinámicas llevan además "filterSpec" (no se editan aquí).
-Los accesos directos no-Steam usan su appid local, por eso hay que editarlas
-en la propia máquina (Steam Frame) y no desde otro equipo.
+Dynamic collections also contain "filterSpec" (they are not edited here).
+Non-Steam shortcuts use their local app IDs, so they must be edited
+on the machine itself (Steam Frame), not from another computer.
 """
 from __future__ import annotations
 
@@ -22,7 +22,7 @@ from pathlib import Path
 from .steam import steam_running
 
 PREFIX = "user-collections."
-BUILTIN = {"favorite": "Favoritos", "hidden": "Ocultos"}
+BUILTIN = {"favorite": "Favorites", "hidden": "Hidden"}
 
 
 class Collections:
@@ -59,7 +59,7 @@ class Collections:
 
     def _save(self, changed_keys: list[str]):
         if steam_running():
-            raise RuntimeError("Cierra Steam antes de editar colecciones: las tiene en memoria y las sobrescribe.")
+            raise RuntimeError("Close Steam before editing collections: it keeps them in memory and overwrites them.")
         self.dir.mkdir(parents=True, exist_ok=True)
         # copia de seguridad de toda la carpeta
         if any(self.dir.iterdir()):
@@ -150,7 +150,7 @@ class Collections:
                        "version": "0", "conflictResolutionMethod": "custom", "strMethodId": "union-collections"}
                 self._entries.append([key, obj])
             else:
-                raise KeyError(f"Colección no encontrada: {cid}")
+                raise KeyError(f"Collection not found: {cid}")
         return key, obj, json.loads(obj["value"])
 
     def create(self, name: str) -> str:
@@ -178,7 +178,7 @@ class Collections:
 
     def delete(self, cid: str):
         if cid in BUILTIN:
-            raise ValueError("No se pueden borrar Favoritos/Ocultos.")
+            raise ValueError("No se pueden borrar Favorites/Hidden.")
         self.load()
         key = PREFIX + cid
         obj = self._find(key)
@@ -192,7 +192,7 @@ class Collections:
         self.load()
         key, obj, val = self._get_value(cid)
         if "filterSpec" in val:
-            raise ValueError("Las colecciones dinámicas se editan desde Steam.")
+            raise ValueError("Dynamic collections must be edited in Steam.")
         added = [int(a) & 0xFFFFFFFF for a in val.get("added", [])]
         removed = [int(a) & 0xFFFFFFFF for a in val.get("removed", [])]
         for a in appids:
