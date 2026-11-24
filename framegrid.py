@@ -82,7 +82,7 @@ class App:
             raise RuntimeError("Missing SteamGridDB API key (Settings).")
         return sgdb.SGDB(key)
 
-    # ------------------------------------------------ modo de trabajo
+    # ------------------------------------------------ working mode
     def mode(self) -> str:
         """live = Steam running with the CEF debugger (like Decky) · files = Steam closed · limited = running without the debugger."""
         if self.live.available():
@@ -112,7 +112,7 @@ class App:
             out.append(str(f))
         return out
 
-    # ------------------------------------------------ acciones
+    # ------------------------------------------------ actions
     def state(self):
         root = self.root
         users = steam.list_users(root) if root else []
