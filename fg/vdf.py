@@ -9,7 +9,7 @@ class U64(int):
 
 
 class F32(float):
-    """Float in binary VDF (type 0x03)."""
+    """float in binary VDF (type 0x03)."""
 
 
 # ---------------------------------------------------------------- binario
@@ -46,7 +46,7 @@ def loads_binary(data: bytes) -> dict:
                 out[key] = U64(struct.unpack_from("<Q", data, pos)[0])
                 pos += 8
             else:
-                raise ValueError(f"Unknown VDF type 0x{t:02x} en {pos}")
+                raise ValueError(f"Unknown VDF type 0x{t:02x} at {pos}")
         return out
 
     return read_map()
@@ -75,7 +75,7 @@ def dumps_binary(obj: dict) -> bytes:
                     iv -= 0x100000000
                 buf.append(0x02); w_str(k); buf.extend(struct.pack("<i", iv))
             else:
-                raise TypeError(f"Not serializable in VDF: {k}={v!r}")
+                raise TypeError(f"Value cannot be serialized to VDF: {k}={v!r}")
         buf.append(0x08)
 
     w_map(obj)

@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Operations on the running Steam client (via CDP), as Decky does.
 
-Works while Steam is running: no need to close or restart it to see changes.
+Works with Steam open: there is no need to close or restart it to see changes.
 """
 from __future__ import annotations
 
@@ -64,7 +64,7 @@ class SteamLive:
                      " await new Promise(r => setTimeout(r, 500)); return true;")
 
     def set_shortcut_icon(self, appid: int, path: str):
-        # Calling SetShortcutName with the same name forces Steam to reload the icon
+        # SetShortcutName consigo mismo fuerza a Steam a releer el icono
         self.cdp.run(f"""
             SteamClient.Apps.SetShortcutIcon({int(appid)}, {js(path)});
             const o = appStore.GetAppOverviewByAppID({int(appid)});

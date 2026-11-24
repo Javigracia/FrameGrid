@@ -1,6 +1,6 @@
 # FrameGrid — Copyright (C) 2026 Javier
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""Minimal client for the SteamGridDB v2 API (standard library only)."""
+"""Minimal SteamGridDB API v2 client (standard library only)."""
 from __future__ import annotations
 
 import json
@@ -20,7 +20,7 @@ SLOT_QUERY = {
     "logo": ("logos", None),
     "icon": ("icons", None),
 }
-# Steam does not reliably read WebP/ICO files from the grid folder, so we use PNG/JPG (PNG includes animated APNG).
+# Steam does not reliably load WebP/ICO files from the grid folder: use PNG/JPG (PNG includes animated APNG).
 MIMES = {
     "grids": "image/png,image/jpeg",
     "heroes": "image/png,image/jpeg",

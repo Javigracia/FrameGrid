@@ -4,8 +4,8 @@
 
 Steam exposes its interface (CEF) at http://127.0.0.1:8080 when remote debugging
 is enabled (the .cef-enable-remote-debugging file or Settings > Developer).
-The "SharedJSContext" tab contains SteamClient, appStore, collectionStore, etc.,
-which are also used by Decky plugins. We only need WebSocket + Runtime.evaluate,
+The "SharedJSContext" tab contains SteamClient, appStore, collectionStore, and other
+objects used by Decky plugins. Only WebSocket + Runtime.evaluate are needed here,
 implemented with the standard library.
 """
 from __future__ import annotations
@@ -38,7 +38,7 @@ class _WebSocket:
         while b"\r\n\r\n" not in resp:
             chunk = self.sock.recv(4096)
             if not chunk:
-                raise CDPError("Steam debugger closed the connection")
+                raise CDPError("Steam's debugger closed the connection")
             resp += chunk
         head, self._buf = resp.split(b"\r\n\r\n", 1)
         if b" 101 " not in head.split(b"\r\n")[0]:
@@ -133,7 +133,7 @@ class SteamCDP:
             return False
 
     def run(self, body: str, timeout=30):
-        """Run JS inside an async function in Steam's context and return its `return` value."""
+        """Runs JS inside an async function in Steam's context and returns its `return` value."""
         expr = "(async()=>{ const __r = await (async()=>{ " + body + " })(); return JSON.stringify(__r === undefined ? null : __r); })()"
         tab = self.shared_context()
         ws = _WebSocket(tab["webSocketDebuggerUrl"], timeout=timeout)

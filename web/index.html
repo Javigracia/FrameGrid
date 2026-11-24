@@ -210,7 +210,7 @@ section{overflow:auto;min-height:0;padding:16px 20px}
       <div id="p-cols" hidden>
         <div class="warnbox limitedWarn" hidden>Live mode is not active: collections and shortcuts cannot be changed while Steam is running. Click “Enable live mode” above and restart Steam Frame.</div>
         <div class="card">
-          <h2>Collections de este equipo</h2>
+          <h2>Collections on this device</h2>
           <div class="muted" id="colsHelp" style="margin-bottom:10px"></div>
           <div class="cols" id="cols"></div>
           <div class="row" style="margin-top:12px">
@@ -227,7 +227,7 @@ section{overflow:auto;min-height:0;padding:16px 20px}
           <h2>Add a non-Steam app or game</h2>
           <div class="form">
             <label>Name</label><input type="text" id="aName" placeholder="My game">
-            <label>Executable</label><input type="text" id="aExe" placeholder="/home/deck/Games/MiJuego/MiJuego.arm64">
+            <label>Executable</label><input type="text" id="aExe" placeholder="/home/deck/Games/MyGame/MyGame.arm64">
             <label>Start directory</label><input type="text" id="aDir" placeholder="(empty = executable directory)">
             <label>Launch options</label><input type="text" id="aOpts" placeholder="">
             <span></span><div class="row"><button class="primary" id="btnAdd">Add to Steam</button>
@@ -261,7 +261,7 @@ section{overflow:auto;min-height:0;padding:16px 20px}
 <script>
 const SLOTS = [
   ["capsule","Poster","600×900"], ["wide","Wide","920×430"], ["hero","Hero","1920×620"],
-  ["logo","Logo","transparent"], ["icon","Icon","cuadrado"]];
+  ["logo","Logo","transparent"], ["icon","Icon","square"]];
 const S = {state:null, lib:[], type:"shortcut", sel:null, marked:new Set(), slot:"capsule",
            game:null, page:0, cols:[], bust:Date.now()};
 const $ = id => document.getElementById(id);
@@ -279,7 +279,7 @@ async function api(path, body){
   return j;
 }
 
-// ---------------------------------------------------------- estado / Steam
+// ---------------------------------------------------------- state / Steam
 const MODE_TXT = {live:"Live", files:"Steam closed · file mode", limited:"No live mode"};
 const MODE_TIP = {live:"Connected to the running Steam client: changes appear immediately.",
   files:"Steam is closed: FrameGrid edits its files directly.",
@@ -322,7 +322,7 @@ $("sSave").onclick = async ()=>{
   const b = {user:$("sUser").value};
   if($("sKey").value.trim()) b.api_key = $("sKey").value.trim();
   if($("sRoot").value.trim()) b.steam_root = $("sRoot").value.trim();
-  try{ S.state = await api("/api/config", b); $("settings").classList.remove("show"); toast("Settings guardados","ok");
+  try{ S.state = await api("/api/config", b); $("settings").classList.remove("show"); toast("Settings saved","ok");
        await refreshState(); await loadLib(); }catch(e){ toast(e.message,"err"); }
 };
 
@@ -396,7 +396,7 @@ function renderSlots(){
 $("slots").onclick = async e=>{
   const rm = e.target.dataset.rm;
   if(rm){ e.stopPropagation();
-    try{ await api("/api/remove",{appid:S.sel.appid, slot:rm, kind:S.sel.type}); toast("Imagen quitada"); await loadLib(); }
+    try{ await api("/api/remove",{appid:S.sel.appid, slot:rm, kind:S.sel.type}); toast("Image removed"); await loadLib(); }
     catch(err){ toast(err.message,"err"); } return; }
   const s = e.target.closest(".slot"); if(!s) return;
   S.slot = s.dataset.slot; renderSlots(); if(S.game) loadAssets(true); renderLocal();
@@ -508,12 +508,12 @@ $("lUpload").onchange = async ()=>{
   $("lUpload").value="";
 };
 
-// ---------------------------------------------------------- auto-rellenar
+// ---------------------------------------------------------- auto-fill
 $("btnAuto").onclick = async ()=>{
   if(!S.state.has_key){ openSettings(); return; }
   const ids=[...S.marked]; $("btnAuto").disabled=true; $("btnAuto").textContent=`Processing ${ids.length}…`;
   let ok=0, fail=[];
-  // de 5 en 5 para ir viendo progreso
+  // Process five at a time so progress is visible
   for(let i=0;i<ids.length;i+=5){
     try{
       const rep = await api("/api/autofill",{appids:ids.slice(i,i+5), overwrite:$("bulkOverwrite").checked});
@@ -527,7 +527,7 @@ $("btnAuto").onclick = async ()=>{
   await loadLib();
 };
 
-// ---------------------------------------------------------- colecciones
+// ---------------------------------------------------------- collections
 async function loadCols(){
   try{ S.cols = (await api("/api/collections")).items; }catch(e){ S.cols=[]; toast(e.message,"err"); }
   if(S.editCol && !editCol()) S.editCol=null;
@@ -552,13 +552,13 @@ function renderCols(){
   const dis = S.state.mode==="limited" ? "disabled" : "";
   const ec = editCol();
   $("colsHelp").innerHTML = ec
-    ? `Editing <b>${esc(ec.name)}</b>: marca en la lista de la izquierda los games que quieras dentro. Pulsa «Done» cuando acabes.`
+    ? `Editing <b>${esc(ec.name)}</b>: tick the games you want to include in the list on the left. Press “Done” when finished.`
     : `Click <b>Edit games</b> on a collection and select its games in the list on the left.`;
   $("cols").innerHTML = S.cols.map(c=>`<div class="col ${S.editCol===c.id?"editing":""}">
       <div class="n">${esc(c.name)}<span>${c.dynamic?"dynamic (edit in Steam)":c.added.length+" games"}</span></div>
       ${c.dynamic?"":(S.editCol===c.id
           ? `<button class="primary" data-stop="1">Done</button>`
-          : `<button class="primary" data-edit="${esc(c.id)}" ${dis}>Editar games</button>`)}
+          : `<button class="primary" data-edit="${esc(c.id)}" ${dis}>Edit games</button>`)}
       ${c.builtin||c.dynamic?"":`<button data-ren="${esc(c.id)}" ${dis}>Rename</button><button class="danger" data-del="${esc(c.id)}" ${dis}>Delete</button>`}
     </div>`).join("");
 }
@@ -582,7 +582,7 @@ $("btnNewCol").onclick = async ()=>{
   const n=$("newCol").value.trim(); if(!n) return;
   try{ const r = await api("/api/collections/create",{name:n, appids:[...S.marked]}); $("newCol").value="";
        S.marked.clear(); await loadCols();
-       if(r.id && S.cols.find(c=>c.id===r.id)){ startEdit(r.id); toast(`Collection “${n}» creada. Ahora marca sus games en la lista.`,"ok",7000); }
+       if(r.id && S.cols.find(c=>c.id===r.id)){ startEdit(r.id); toast(`Collection “${n}” created. Now select its games in the list.`,"ok",7000); }
        else toast("Collection created","ok");
   }catch(e){ toast(e.message,"err"); }
 };
@@ -591,13 +591,13 @@ $("newCol").onkeydown = e=>{ if(e.key==="Enter") $("btnNewCol").click(); };
 // ---------------------------------------------------------- add non-Steam app
 $("btnAdd").onclick = async ()=>{
   const name=$("aName").value.trim(), exe=$("aExe").value.trim();
-  if(!name||!exe){ toast("Name y ejecutable son obligatorios","err"); return; }
+  if(!name||!exe){ toast("Name and executable are required","err"); return; }
   try{
     const r = await api("/api/shortcut/add",{name, exe, start_dir:$("aDir").value.trim(), launch_options:$("aOpts").value.trim()});
     toast(`Added “${name}” (app ID ${r.appid})`,"ok");
     if($("aAuto").checked && S.state.has_key){
       const rep = await api("/api/autofill",{appids:[r.appid]});
-      if(rep[0]&&rep[0].error) toast("Artwork: "+rep[0].error,"err"); else toast("Artwork descargadas","ok");
+      if(rep[0]&&rep[0].error) toast("Artwork: "+rep[0].error,"err"); else toast("Artwork downloaded","ok");
     }
     ["aName","aExe","aDir","aOpts"].forEach(id=>$(id).value="");
     await loadLib();
