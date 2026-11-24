@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Operations on the running Steam client (via CDP), as Decky does.
 
-Funciona con Steam abierto: no hay que cerrarlo ni reiniciarlo para ver los cambios.
+Works with Steam open: there is no need to close or restart it to see changes.
 """
 from __future__ import annotations
 
