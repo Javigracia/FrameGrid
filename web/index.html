@@ -227,7 +227,7 @@ section{overflow:auto;min-height:0;padding:16px 20px}
           <h2>Add a non-Steam app or game</h2>
           <div class="form">
             <label>Name</label><input type="text" id="aName" placeholder="My game">
-            <label>Executable</label><input type="text" id="aExe" placeholder="/home/deck/Games/MiJuego/MiJuego.arm64">
+            <label>Executable</label><input type="text" id="aExe" placeholder="/home/deck/Games/MyGame/MyGame.arm64">
             <label>Start directory</label><input type="text" id="aDir" placeholder="(empty = executable directory)">
             <label>Launch options</label><input type="text" id="aOpts" placeholder="">
             <span></span><div class="row"><button class="primary" id="btnAdd">Add to Steam</button>
@@ -279,7 +279,7 @@ async function api(path, body){
   return j;
 }
 
-// ---------------------------------------------------------- estado / Steam
+// ---------------------------------------------------------- state / Steam
 const MODE_TXT = {live:"Live", files:"Steam closed · file mode", limited:"No live mode"};
 const MODE_TIP = {live:"Connected to the running Steam client: changes appear immediately.",
   files:"Steam is closed: FrameGrid edits its files directly.",
@@ -508,12 +508,12 @@ $("lUpload").onchange = async ()=>{
   $("lUpload").value="";
 };
 
-// ---------------------------------------------------------- auto-rellenar
+// ---------------------------------------------------------- auto-fill
 $("btnAuto").onclick = async ()=>{
   if(!S.state.has_key){ openSettings(); return; }
   const ids=[...S.marked]; $("btnAuto").disabled=true; $("btnAuto").textContent=`Processing ${ids.length}…`;
   let ok=0, fail=[];
-  // de 5 en 5 para ir viendo progreso
+  // Process five at a time so progress is visible
   for(let i=0;i<ids.length;i+=5){
     try{
       const rep = await api("/api/autofill",{appids:ids.slice(i,i+5), overwrite:$("bulkOverwrite").checked});
