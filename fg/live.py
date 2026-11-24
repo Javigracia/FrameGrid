@@ -42,7 +42,7 @@ class SteamLive:
     def icon_hash(self, appid: int) -> str | None:
         return self.cdp.run(f"const o = appStore.GetAppOverviewByAppID({int(appid)}); return o ? (o.icon_hash || null) : null;")
 
-    # ------------------------------------------------ imágenes
+    # ------------------------------------------------ artwork
     def set_artwork(self, appid: int, slot: str, data: bytes, ext: str, set_logo_pos: bool):
         b64 = base64.b64encode(data).decode()
         kind = "jpg" if ext in ("jpg", "jpeg") else "png"
@@ -64,14 +64,14 @@ class SteamLive:
                      " await new Promise(r => setTimeout(r, 500)); return true;")
 
     def set_shortcut_icon(self, appid: int, path: str):
-        # SetShortcutName consigo mismo fuerza a Steam a releer el icono
+        # Calling SetShortcutName with the same name forces Steam to reload the icon
         self.cdp.run(f"""
             SteamClient.Apps.SetShortcutIcon({int(appid)}, {js(path)});
             const o = appStore.GetAppOverviewByAppID({int(appid)});
             if (o) SteamClient.Apps.SetShortcutName({int(appid)}, o.display_name);
             return true;""")
 
-    # ------------------------------------------------ accesos directos
+    # ------------------------------------------------ shortcuts
     def add_shortcut(self, name, exe, start_dir="", launch_options="") -> int:
         start_dir = start_dir or str(Path(exe).parent)
         return int(self.cdp.run(f"""
@@ -84,7 +84,7 @@ class SteamLive:
     def remove_shortcut(self, appid: int):
         self.cdp.run(f"SteamClient.Apps.RemoveShortcut({int(appid)}); return true;")
 
-    # ------------------------------------------------ colecciones
+    # ------------------------------------------------ collections
     def collections(self) -> list[dict]:
         return self.cdp.run("""
             const ids = c => {
