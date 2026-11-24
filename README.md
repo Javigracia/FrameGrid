@@ -108,7 +108,7 @@ FrameGrid picks the mode automatically and shows it in the top-left indicator.
 3. **Auto-fill**: tick several games, then press **"Auto-rellenar desde SteamGridDB"**. Tick *Sobrescribir existentes* to also replace artwork you already set.
 4. **Collections** (*Collections* tab):
    1. To create one, type a name and press **Crear** (Create). It opens straight away in edit mode.
-   2. To change an existing one, press **Editar juegos** (Edit games) next to it.
+   2. To change an existing one, press **Edit games** next to it.
    3. While editing, a blue banner appears above the game list and each checkbox means "this game is in the collection". Tick or untick games; every change is saved immediately. *Add all* puts every game currently shown in the list into the collection, so you can filter first.
    4. Press **Terminar** (Done) when you are finished.
 
