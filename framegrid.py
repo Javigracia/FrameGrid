@@ -29,8 +29,10 @@ from fg.collections import Collections  # noqa: E402
 from fg.live import SteamLive  # noqa: E402
 from fg import imgutil  # noqa: E402
 import base64  # noqa: E402
+from fg.i18n import tr  # noqa: E402
+from fg.pairing import Pairing  # noqa: E402
 
-VERSION = "0.3.1"
+VERSION = "0.4.0"
 CONFIG_DIR = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config")) / "framegrid"
 CONFIG_FILE = CONFIG_DIR / "config.json"
 
@@ -49,12 +51,21 @@ def save_config(cfg: dict):
     os.chmod(CONFIG_FILE, 0o600)
 
 
+class _nullcontext:
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *a):
+        return False
+
+
 class App:
     def __init__(self, steam_root_override=None):
         self.cfg = load_config()
         if steam_root_override:
             self.cfg["steam_root"] = steam_root_override
         self.lock = threading.Lock()
+        self.pairing = Pairing(self.set_api_key, tr)
 
     @property
     def root(self):
@@ -75,6 +86,23 @@ class App:
                 raise RuntimeError("No hay usuarios en Steam/userdata. Inicia sesión en Steam una vez.")
             uid = users[0]["id"]
         return steam.SteamUser(root, uid)
+
+    def set_api_key(self, key: str, locked: bool = False) -> str | None:
+        """Comprueba la clave contra SteamGridDB y la guarda. Devuelve un aviso si no se pudo verificar."""
+        key = (key or "").strip()
+        if not key:
+            raise RuntimeError("API key de SteamGridDB no válida (401).")
+        warn = None
+        try:
+            sgdb.SGDB(key, timeout=10).search("Portal")
+        except sgdb.SGDBError as e:
+            if "401" in str(e):
+                raise
+            warn = "No se pudo comprobar la clave ahora mismo; se ha guardado igualmente."
+        with (_nullcontext() if locked else self.lock):
+            self.cfg["api_key"] = key
+            save_config({k: v for k, v in self.cfg.items() if v})
+        return warn
 
     def sgdb(self) -> sgdb.SGDB:
         key = self.cfg.get("api_key")
@@ -130,6 +158,7 @@ class App:
             "mode": self.mode(),
             "cef_flag": any(f.exists() for f in self.cef_flag_paths()),
             "has_key": bool(self.cfg.get("api_key")),
+            "lang": self.cfg.get("lang"),
         }
 
     def library(self):
@@ -307,7 +336,24 @@ def make_handler(app: App, stop_event: threading.Event):
             if os.environ.get("FRAMEGRID_DEBUG"):
                 super().log_message(fmt, *a)
 
+        def _lang(self):
+            h = (self.headers.get("X-Lang") or app.cfg.get("lang") or "es").lower()
+            return "en" if h.startswith("en") else "es"
+
+        def _err(self, e):
+            return self._json({"error": tr(str(e), self._lang())}, 400)
+
         def _json(self, obj, code=200):
+            lang = self._lang()
+            if lang == "en":
+                if isinstance(obj, dict):
+                    for k in ("note", "warning"):
+                        if obj.get(k):
+                            obj[k] = tr(obj[k], lang)
+                elif isinstance(obj, list):
+                    for r in obj:
+                        if isinstance(r, dict) and r.get("error"):
+                            r["error"] = tr(r["error"], lang)
             b = json.dumps(obj, ensure_ascii=False).encode("utf-8")
             self.send_response(code)
             self.send_header("Content-Type", "application/json; charset=utf-8")
@@ -384,9 +430,24 @@ def make_handler(app: App, stop_event: threading.Event):
                     return self._file(f)
                 if p == "/api/collections":
                     return self._json(app.collections())
+                if p == "/api/pair/status":
+                    st = app.pairing.status()
+                    st["has_key"] = bool(app.cfg.get("api_key"))
+                    return self._json(st)
+                if p == "/api/pair/qr.svg":
+                    svg = app.pairing.qr()
+                    if not svg:
+                        return self.send_error(404)
+                    b = svg.encode()
+                    self.send_response(200)
+                    self.send_header("Content-Type", "image/svg+xml")
+                    self.send_header("Content-Length", str(len(b)))
+                    self.send_header("Cache-Control", "no-store")
+                    self.end_headers()
+                    return self.wfile.write(b)
                 return self.send_error(404)
             except Exception as e:
-                return self._json({"error": str(e)}, 400)
+                return self._err(e)
 
         def do_POST(self):
             if not self._guard():
@@ -396,11 +457,21 @@ def make_handler(app: App, stop_event: threading.Event):
                 b = self._body()
                 with app.lock:
                     if p == "/api/config":
-                        for k in ("api_key", "user", "steam_root", "cef_port", "images_dir"):
+                        warn = None
+                        if b.get("api_key"):
+                            warn = app.set_api_key(b["api_key"], locked=True)
+                        for k in ("user", "steam_root", "cef_port", "images_dir", "lang"):
                             if k in b:
                                 app.cfg[k] = b[k] or None
                         save_config({k: v for k, v in app.cfg.items() if v})
-                        return self._json(app.state())
+                        st = app.state()
+                        st["warning"] = warn
+                        return self._json(st)
+                    if p == "/api/pair/start":
+                        return self._json(app.pairing.start(self._lang()))
+                    if p == "/api/pair/stop":
+                        app.pairing.stop()
+                        return self._json({"ok": True})
                     if p == "/api/apply":
                         return self._json(app.apply(int(b["appid"]), b["slot"], b["url"], b.get("kind", "")))
                     if p == "/api/apply_local":
@@ -426,12 +497,13 @@ def make_handler(app: App, stop_event: threading.Event):
                     if p == "/api/steam/start":
                         return self._json({"ok": steam.start_steam()})
                     if p == "/api/quit":
+                        app.pairing.stop()
                         self._json({"ok": True})
                         stop_event.set()
                         return
                 return self.send_error(404)
             except Exception as e:
-                return self._json({"error": str(e)}, 400)
+                return self._err(e)
 
     return H
 

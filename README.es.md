@@ -27,6 +27,8 @@ En la Steam Frame no hay Decky Loader, no aparece la opción *Administrar › Ca
 - **Iconos**: para accesos directos no-Steam y, en modo en vivo, también para juegos de Steam.
 - **Colecciones**: crea, renombra y borra colecciones, y mete o saca juegos, incluidos los no-Steam, de Favoritos, Ocultos o tus propias colecciones.
 - **Añadir apps no-Steam**: añade ports, builds de Godot o cualquier ejecutable a la biblioteca y, si quieres, descarga sus carátulas en el mismo paso.
+- **Interfaz en español e inglés**: se cambia con los botones **ES | EN** de la cabecera.
+- **API key fácil de introducir**: envíala desde el móvil escaneando un código QR, pégala o abre la página de SteamGridDB con un clic.
 - **Sin dependencias**: solo usa Python 3 y su librería estándar. No hace falta pacman, pip ni compilar, y funciona en ARM64 y x86.
 - **Interfaz web local** con botones grandes, cómoda con mando. Se abre en el navegador del escritorio o en el navegador interno de Steam.
 
@@ -99,14 +101,22 @@ FrameGrid elige el modo solo y lo muestra en el indicador de arriba a la izquier
 
 ## Uso
 
-1. La primera vez, pega tu **API key de SteamGridDB** en **Ajustes**. Se guarda en `~/.config/framegrid/config.json` con permisos 600.
-2. **Carátulas**
+1. **Idioma**: FrameGrid arranca en el idioma del sistema. Puedes cambiarlo cuando quieras con los botones **ES | EN** de la cabecera, y recuerda tu elección.
+2. **API key**: la primera vez se abre la ventana de **Ajustes**. Escribir una clave de 32 caracteres en VR es un suplicio, así que hay tres formas de introducirla:
+   - **📱 Enviar desde el móvil (QR)** (la más cómoda en VR): escanea el código QR con el móvil, pega tu clave en la página que se abre y pulsa *Enviar a FrameGrid*. La clave aparece en las gafas y Ajustes se cierran solos. El móvil tiene que estar en la misma red wifi que la Steam Frame.
+   - **Pegar**: si copiaste la clave en el navegador de la Frame, pulsa *Pegar*.
+   - **Obtener clave en SteamGridDB**: abre la página de la API de SteamGridDB para copiarla.
+
+   <img src="docs/screenshots/api-key-qr.png" alt="Ventana de Ajustes con el código QR para enviar la API key desde el móvil" width="560">
+
+   FrameGrid comprueba la clave con SteamGridDB antes de guardarla, así que si está mal copiada te avisa al momento. Se guarda en `~/.config/framegrid/config.json` con permisos 600.
+3. **Carátulas**
    1. Elige un juego en la lista de la izquierda. Las pestañas *No-Steam*, *Steam* y *Todos* filtran la lista.
    2. Elige el hueco: *Póster*, *Horizontal*, *Héroe*, *Logo* o *Icono*.
    3. Toca una imagen para aplicarla. Los filtros *Animadas*, *Humor* y *NSFW* cambian los resultados que se muestran.
    4. **¿No está en SteamGridDB?** Cambia a la pestaña *Mis imágenes*. Se abre tu carpeta Imágenes; entra en las subcarpetas y toca una imagen para aplicarla, o pulsa *Subir archivo…* para elegir cualquier PNG/JPG. *Solo las que encajan* oculta las imágenes con una forma que no corresponde al hueco, y *Fijar carpeta* hace que la carpeta actual se abra por defecto.
-3. **Auto-rellenar**: marca varios juegos y pulsa **«Auto-rellenar desde SteamGridDB»**. Marca *Sobrescribir existentes* si quieres sustituir también las imágenes que ya tienes.
-4. **Colecciones** (pestaña *Colecciones*):
+4. **Auto-rellenar**: marca varios juegos y pulsa **«Auto-rellenar desde SteamGridDB»**. Marca *Sobrescribir existentes* si quieres sustituir también las imágenes que ya tienes.
+5. **Colecciones** (pestaña *Colecciones*):
    1. Para crear una, escribe un nombre y pulsa **Crear**. Se abre directamente en modo edición.
    2. Para cambiar una que ya existe, pulsa **Editar juegos** a su lado.
    3. Mientras editas, aparece un aviso azul encima de la lista de juegos y cada casilla significa «este juego está en la colección». Marca o desmarca juegos; cada cambio se guarda al momento. *Meter todos* añade a la colección todos los juegos que se ven en la lista, así que puedes filtrar primero.
@@ -120,8 +130,8 @@ FrameGrid elige el modo solo y lo muestra en el indicador de arriba a la izquier
 
    <em>La colección *Ports* resultante en la biblioteca de la Steam Frame, con sus carátulas.</em>
 
-5. **Añadir no-Steam** (pestaña *Añadir no-Steam*): escribe el nombre y la ruta del ejecutable. La carpeta de inicio y las opciones de lanzamiento son opcionales.
-6. Pulsa **Salir** cuando termines.
+6. **Añadir no-Steam** (pestaña *Añadir no-Steam*): escribe el nombre y la ruta del ejecutable. La carpeta de inicio y las opciones de lanzamiento son opcionales.
+7. Pulsa **Salir** cuando termines.
 
 > Los IDs de los accesos directos no-Steam son propios de cada máquina. Por eso las colecciones con apps no-Steam no se pueden preparar desde otro PC y hay que editarlas en el propio dispositivo. Eso es exactamente lo que hace FrameGrid.
 
@@ -148,6 +158,8 @@ En **modo archivos** y en **sin modo en vivo**, FrameGrid hace antes una copia d
 
 El depurador CEF permite que cualquier programa que se ejecute **en el propio dispositivo** controle el cliente de Steam. Es lo mismo que activa Decky Loader en la Steam Deck. El servidor de FrameGrid solo escucha en `127.0.0.1` y rechaza peticiones que vengan de otras webs.
 
+El **envío desde el móvil** abre un segundo servidor temporal en tu red local, solo mientras el código QR está en pantalla. Su dirección lleva un código secreto de un solo uso, y se cierra en cuanto recibe una clave válida, a los 5 minutos o tras 10 intentos fallidos. La clave viaja por tu wifi sin cifrar, así que úsalo solo en una red de confianza; si no, usa *Pegar*.
+
 Para desactivar el depurador, borra `~/.steam/steam/.cef-enable-remote-debugging` y reinicia.
 
 ## Solución de problemas
@@ -155,7 +167,8 @@ Para desactivar el depurador, borra `~/.steam/steam/.cef-enable-remote-debugging
 | Problema | Solución |
 |---|---|
 | El indicador sigue en *Sin modo en vivo* después de reiniciar | Comprueba que existe el archivo `~/.steam/steam/.cef-enable-remote-debugging` o activa *Depuración remota CEF* en los ajustes de Desarrollador de Steam. Ejecuta `--status`. |
-| «API key de SteamGridDB no válida (401)» | Genera una key nueva en steamgriddb.com y pégala en **Ajustes** |
+| «API key de SteamGridDB no válida (401)» | Genera una key nueva en steamgriddb.com y vuelve a enviarla desde **Ajustes** |
+| El móvil no abre la página del QR | Comprueba que el móvil y la Frame están en la misma red wifi (no en una red de invitados) y que el código no ha caducado. Si sigue sin ir, usa *Pegar*. |
 | Las carátulas no se ven (sin modo en vivo) | Reinicia el dispositivo. Sin modo en vivo, Steam solo lee la carpeta `grid` al arrancar. |
 | No detecta Steam | Usa `--steam-root ~/.local/share/Steam` o indica la carpeta de Steam en **Ajustes** |
 | No se abre el navegador | Abre `http://127.0.0.1:8787` a mano o usa `--open steam` |
@@ -177,6 +190,7 @@ FrameGrid es y seguirá siendo gratuito. Si alguien te pide dinero por él, pued
 ## Créditos
 
 - Imágenes de [SteamGridDB](https://www.steamgriddb.com). Apoya la web y a sus artistas.
+- Códigos QR generados con [QR Code generator library](https://www.nayuki.io/page/qr-code-generator-library) de Project Nayuki (licencia MIT, incluida en `fg/qrcodegen.py`).
 - Inspirado en [decky-steamgriddb](https://github.com/SteamGridDB/decky-steamgriddb) y SGDBoop.
 
 FrameGrid no está afiliado a Valve ni a SteamGridDB. Steam y Steam Frame son marcas de Valve Corporation.

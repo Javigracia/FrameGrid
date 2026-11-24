@@ -99,6 +99,10 @@ section{overflow:auto;min-height:0;padding:16px 20px}
 .asset .ok{position:absolute;top:4px;right:4px;background:var(--ok);color:#04121f;font-size:11px;font-weight:700;border-radius:4px;padding:1px 5px}
 .crumb{font-family:monospace;font-size:13px;color:var(--dim);word-break:break-all}
 .srcTabs{display:flex;gap:6px;margin-bottom:10px}
+.seg.lang button{min-height:34px;padding:4px 10px;font-size:13px}
+.seg.lang button.act{background:var(--acc);color:#04121f;border-color:var(--acc)}
+.pairbox{display:flex;gap:16px;align-items:center;background:var(--bg);border:1px solid var(--acc);border-radius:10px;padding:12px}
+.pairbox img{width:190px;height:190px;border-radius:6px;background:#fff;flex:none}
 .srcTabs button.act{background:var(--acc);color:#04121f;border-color:var(--acc)}
 @media (max-width:900px){.main{grid-template-columns:1fr}.slots{grid-template-columns:repeat(3,1fr)} aside{max-height:40vh}}
 </style>
@@ -106,12 +110,13 @@ section{overflow:auto;min-height:0;padding:16px 20px}
 <body>
 <div class="app">
   <header>
-    <h1>FrameGrid<small id="ver"></small></h1>
-    <span id="steamPill" class="pill">Steam…</span>
-    <button id="btnCef" hidden>Activar modo en vivo</button>
+    <h1>FrameGrid<small id="ver" data-noi18n></small></h1>
+    <span id="steamPill" class="pill" data-noi18n>Steam…</span>
+    <button id="btnCef" hidden data-noi18n>Activar modo en vivo</button>
     <button id="btnSteam" hidden>Abrir Steam</button>
     <span class="sp"></span>
-    <span class="muted" id="userLbl"></span>
+    <span class="muted" id="userLbl" data-noi18n></span>
+    <div class="seg lang" id="langSeg" data-noi18n><button data-l="es">ES</button><button data-l="en">EN</button></div>
     <button id="btnSettings">Ajustes</button>
     <button id="btnQuit" title="Cerrar FrameGrid">Salir</button>
   </header>
@@ -126,21 +131,21 @@ section{overflow:auto;min-height:0;padding:16px 20px}
         </div>
         <div class="row" style="justify-content:space-between">
           <label class="chk"><input type="checkbox" id="onlyMissing"> Solo con huecos</label>
-          <button id="btnSelAll" style="min-height:30px;padding:3px 10px;font-size:13px">Marcar todos</button>
+          <button id="btnSelAll" data-noi18n style="min-height:30px;padding:3px 10px;font-size:13px">Marcar todos</button>
         </div>
       </div>
       <div class="editbanner" id="editBanner" hidden>
-        <div>Editando <b id="ebName"></b> · <span id="ebCount"></span></div>
+        <div>Editando <b id="ebName" data-noi18n></b> · <span id="ebCount" data-noi18n></span></div>
         <div class="muted">Marca o desmarca juegos para meterlos o sacarlos. Se guarda al momento.</div>
         <button id="ebDone">Terminar</button>
       </div>
-      <div class="list" id="list"></div>
+      <div class="list" id="list" data-noi18n></div>
       <div class="bulk" id="bulk" hidden>
-        <div><b id="bulkN">0</b> marcados</div>
+        <div><b id="bulkN" data-noi18n>0</b> marcados</div>
         <div class="row">
           <label class="chk"><input type="checkbox" id="bulkOverwrite"> Sobrescribir existentes</label>
         </div>
-        <button class="primary" id="btnAuto">Auto-rellenar desde SteamGridDB</button>
+        <button class="primary" id="btnAuto" data-noi18n>Auto-rellenar desde SteamGridDB</button>
       </div>
     </aside>
     <section>
@@ -155,10 +160,10 @@ section{overflow:auto;min-height:0;padding:16px 20px}
         <div id="artBody" hidden>
           <div class="card">
             <div class="row" style="justify-content:space-between">
-              <h2 id="selName" style="margin:0"></h2>
-              <span class="muted" id="selMeta"></span>
+              <h2 id="selName" style="margin:0" data-noi18n></h2>
+              <span class="muted" id="selMeta" data-noi18n></span>
             </div>
-            <div class="slots" id="slots" style="margin-top:12px"></div>
+            <div class="slots" id="slots" data-noi18n style="margin-top:12px"></div>
           </div>
           <div class="srcTabs" id="srcTabs">
             <button data-src="sgdb" class="act">SteamGridDB</button>
@@ -175,10 +180,10 @@ section{overflow:auto;min-height:0;padding:16px 20px}
                   <input type="file" id="lUpload" accept="image/png,image/jpeg" hidden>
                 </div>
               </div>
-              <div class="crumb" id="lDir" style="margin-top:8px"></div>
-              <div class="chips" id="lDirs"></div>
-              <div class="muted" style="margin-top:8px">Toca una imagen para instalarla en el hueco seleccionado arriba. Solo PNG y JPG. <span id="lHint"></span></div>
-              <div class="grid local" id="lFiles"></div>
+              <div class="crumb" id="lDir" data-noi18n style="margin-top:8px"></div>
+              <div class="chips" id="lDirs" data-noi18n></div>
+              <div class="muted" style="margin-top:8px">Toca una imagen para instalarla en el hueco seleccionado arriba. Solo PNG y JPG. <span id="lHint" data-noi18n></span></div>
+              <div class="grid local" id="lFiles" data-noi18n></div>
             </div>
           </div>
           <div id="src-sgdb">
@@ -188,11 +193,11 @@ section{overflow:auto;min-height:0;padding:16px 20px}
               <input type="text" id="q" style="flex:1;min-width:200px" placeholder="Nombre del juego">
               <button class="primary" id="btnSearch">Buscar</button>
             </div>
-            <div class="chips" id="games"></div>
+            <div class="chips" id="games" data-noi18n></div>
           </div>
           <div class="card" id="assetsCard" hidden>
             <div class="row" style="justify-content:space-between">
-              <h2 id="assetsTitle" style="margin:0"></h2>
+              <h2 id="assetsTitle" style="margin:0" data-noi18n></h2>
               <div class="row">
                 <label class="chk"><input type="checkbox" id="fAnim"> Animadas</label>
                 <label class="chk"><input type="checkbox" id="fHumor"> Humor</label>
@@ -200,7 +205,7 @@ section{overflow:auto;min-height:0;padding:16px 20px}
               </div>
             </div>
             <div class="muted" style="margin-top:6px">Toca una imagen para instalarla en el hueco seleccionado arriba.</div>
-            <div class="grid" id="assets"></div>
+            <div class="grid" id="assets" data-noi18n></div>
             <div class="row" style="justify-content:center;margin-top:12px"><button id="btnMore">Cargar más</button></div>
           </div>
           </div>
@@ -211,8 +216,8 @@ section{overflow:auto;min-height:0;padding:16px 20px}
         <div class="warnbox limitedWarn" hidden>El modo en vivo no está activo: con Steam abierto no se pueden tocar colecciones ni accesos directos. Pulsa «Activar modo en vivo» arriba y reinicia la Steam Frame.</div>
         <div class="card">
           <h2>Colecciones de este equipo</h2>
-          <div class="muted" id="colsHelp" style="margin-bottom:10px"></div>
-          <div class="cols" id="cols"></div>
+          <div class="muted" id="colsHelp" data-noi18n style="margin-bottom:10px"></div>
+          <div class="cols" id="cols" data-noi18n></div>
           <div class="row" style="margin-top:12px">
             <input type="text" id="newCol" placeholder="Nueva colección (p. ej. Ports, Mis juegos, Emuladores)" style="flex:1">
             <button class="primary" id="btnNewCol">Crear</button>
@@ -243,21 +248,39 @@ section{overflow:auto;min-height:0;padding:16px 20px}
   <div class="card">
     <h2>Ajustes</h2>
     <div class="cols">
-      <label>API key de SteamGridDB <span class="muted">(steamgriddb.com → Preferencias → API)</span></label>
-      <input type="password" id="sKey" placeholder="pega aquí tu API key">
+      <label><b>API key de SteamGridDB</b></label>
+      <div class="row">
+        <input type="password" id="sKey" data-noi18n placeholder="pega aquí tu API key" style="flex:1" autocomplete="off" spellcheck="false">
+        <button id="sPaste">Pegar</button>
+      </div>
+      <div class="row">
+        <button id="sGetKey">Obtener clave en SteamGridDB</button>
+        <button class="primary" id="sPhone">📱 Enviar desde el móvil (QR)</button>
+      </div>
+      <div class="pairbox" id="pairBox" hidden>
+        <img id="pairQr" alt="QR">
+        <div class="cols" style="flex:1">
+          <b>Escanea este código con el móvil</b>
+          <div class="muted">Se abrirá una página donde pegar tu API key. El móvil tiene que estar en la misma red wifi que la Steam Frame.</div>
+          <div class="crumb" id="pairUrl" data-noi18n></div>
+          <div class="muted" id="pairTime" data-noi18n></div>
+          <div><button id="pairStop">Cancelar</button></div>
+        </div>
+      </div>
       <label>Usuario de Steam</label>
-      <select id="sUser"></select>
+      <select id="sUser" data-noi18n></select>
       <label>Carpeta de Steam <span class="muted">(vacío = autodetectar)</span></label>
       <input type="text" id="sRoot">
-      <div class="muted" id="sRootNow"></div>
+      <div class="muted" id="sRootNow" data-noi18n></div>
     </div>
     <div class="row" style="justify-content:flex-end;margin-top:14px">
       <button id="sCancel">Cancelar</button><button class="primary" id="sSave">Guardar</button>
     </div>
   </div>
 </div>
-<div id="toast"></div>
+<div id="toast" data-noi18n></div>
 
+<script src="/static/i18n.js"></script>
 <script>
 const SLOTS = [
   ["capsule","Póster","600×900"], ["wide","Horizontal","920×430"], ["hero","Héroe","1920×620"],
@@ -272,7 +295,7 @@ function toast(msg, cls="", ms=4500){
   setTimeout(()=>d.remove(), ms);
 }
 async function api(path, body){
-  const opt = body===undefined ? {} : {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)};
+  const opt = body===undefined ? {headers:{"X-Lang":LANG}} : {method:"POST", headers:{"Content-Type":"application/json","X-Lang":LANG}, body:JSON.stringify(body)};
   const r = await fetch(path, opt);
   let j; try{ j = await r.json(); }catch{ throw new Error("HTTP "+r.status); }
   if(j && j.error) throw new Error(j.error);
@@ -288,43 +311,99 @@ async function refreshState(){
   S.state = await api("/api/state");
   $("ver").textContent = "v"+S.state.version;
   const m = S.state.mode;
-  $("steamPill").className = "pill "+m; $("steamPill").textContent = MODE_TXT[m]; $("steamPill").title = MODE_TIP[m];
+  $("steamPill").className = "pill "+m; $("steamPill").textContent = T(MODE_TXT[m]); $("steamPill").title = T(MODE_TIP[m]);
   $("btnCef").hidden = m!=="limited";
-  $("btnCef").textContent = S.state.cef_flag ? "Modo en vivo: reinicia la Frame" : "Activar modo en vivo";
+  $("btnCef").textContent = T(S.state.cef_flag ? "Modo en vivo: reinicia la Frame" : "Activar modo en vivo");
   $("btnSteam").hidden = m!=="files";
   document.querySelectorAll(".limitedWarn").forEach(e=>e.hidden = m!=="limited");
   const u = (S.state.users||[]).find(u=>u.id===S.state.user);
-  $("userLbl").textContent = u ? `${u.name} (${u.id})` : "sin usuario";
+  $("userLbl").textContent = u ? `${u.name} (${u.id})` : T("sin usuario");
 }
 $("btnCef").onclick = async ()=>{
   try{ const r = await api("/api/cef/enable",{});
-    toast("Depurador CEF activado ("+r.files.length+" archivo). Reinicia la Steam Frame y vuelve a abrir FrameGrid: el indicador pasará a «En vivo».","ok",12000);
-    toast("Si tras reiniciar sigue sin modo en vivo: Ajustes de Steam › Sistema › Modo desarrollador, y luego Desarrollador › Depuración remota CEF.","",15000);
+    toast(T("Depurador CEF activado ({n} archivo). Reinicia la Steam Frame y vuelve a abrir FrameGrid: el indicador pasará a «En vivo».",{n:r.files.length}),"ok",12000);
+    toast(T("Si tras reiniciar sigue sin modo en vivo: Ajustes de Steam › Sistema › Modo desarrollador, y luego Desarrollador › Depuración remota CEF."),"",15000);
     await refreshState(); }catch(e){ toast(e.message,"err"); }
 };
 $("btnSteam").onclick = async ()=>{
-  $("btnSteam").disabled = true; toast("Abriendo Steam…");
+  $("btnSteam").disabled = true; toast(T("Abriendo Steam…"));
   try{ await api("/api/steam/start", {}); }catch(e){ toast(e.message,"err"); }
   setTimeout(async()=>{ await refreshState(); $("btnSteam").disabled=false; }, 5000);
 };
-$("btnQuit").onclick = async ()=>{ await api("/api/quit",{}); document.body.innerHTML='<div class="empty">FrameGrid cerrado. Ya puedes cerrar esta pestaña.</div>'; };
+$("btnQuit").onclick = async ()=>{ await api("/api/quit",{}); document.body.innerHTML='<div class="empty">'+T("FrameGrid cerrado. Ya puedes cerrar esta pestaña.")+'</div>'; };
 
 // ---------------------------------------------------------- ajustes
+const SGDB_API_PAGE = "https://www.steamgriddb.com/profile/preferences/api";
 function openSettings(){
-  $("sKey").value = ""; $("sKey").placeholder = S.state.has_key ? "•••••• (guardada; escribe para cambiarla)" : "pega aquí tu API key";
+  $("sKey").value = "";
+  $("sKey").placeholder = T(S.state.has_key ? "•••••• (guardada; escribe para cambiarla)" : "pega aquí tu API key");
   $("sUser").innerHTML = (S.state.users||[]).map(u=>`<option value="${u.id}" ${u.id===S.state.user?"selected":""}>${esc(u.name)} — ${u.id}</option>`).join("");
-  $("sRoot").value = ""; $("sRootNow").textContent = "Detectada: "+(S.state.steam_root||"ninguna");
+  $("sRoot").value = ""; $("sRootNow").textContent = T("Detectada: {p}",{p:S.state.steam_root||T("ninguna")});
   $("settings").classList.add("show");
 }
+function closeSettings(){ stopPairing(); $("settings").classList.remove("show"); }
 $("btnSettings").onclick = openSettings;
-$("sCancel").onclick = ()=>$("settings").classList.remove("show");
+$("sCancel").onclick = closeSettings;
+$("sPaste").onclick = async ()=>{
+  try{ const t = (await navigator.clipboard.readText()).trim(); if(t){ $("sKey").value = t; return; } }catch(e){}
+  $("sKey").focus(); toast(T("No se pudo leer el portapapeles: pega con Ctrl+V."));
+};
+$("sGetKey").onclick = ()=>{ window.open(SGDB_API_PAGE, "_blank", "noopener"); };
 $("sSave").onclick = async ()=>{
   const b = {user:$("sUser").value};
-  if($("sKey").value.trim()) b.api_key = $("sKey").value.trim();
+  if($("sKey").value.trim()){ b.api_key = $("sKey").value.trim(); toast(T("Comprobando la clave…")); }
   if($("sRoot").value.trim()) b.steam_root = $("sRoot").value.trim();
-  try{ S.state = await api("/api/config", b); $("settings").classList.remove("show"); toast("Ajustes guardados","ok");
-       await refreshState(); await loadLib(); }catch(e){ toast(e.message,"err"); }
+  $("sSave").disabled = true;
+  try{ const st = await api("/api/config", b); closeSettings();
+       toast(T("Ajustes guardados"),"ok"); if(st.warning) toast(st.warning,"",8000);
+       await refreshState(); await loadLib(); }
+  catch(e){ toast(e.message,"err",8000); }
+  $("sSave").disabled = false;
 };
+// --- emparejamiento con el móvil
+let pairTimer = null;
+function stopPairing(){
+  if(pairTimer){ clearInterval(pairTimer); pairTimer=null; api("/api/pair/stop",{}).catch(()=>{}); }
+  $("pairBox").hidden = true;
+}
+$("pairStop").onclick = stopPairing;
+$("sPhone").onclick = async ()=>{
+  stopPairing();
+  try{
+    const st = await api("/api/pair/start",{});
+    $("pairQr").src = "/api/pair/qr.svg?t="+Date.now();
+    $("pairUrl").textContent = st.url;
+    $("pairTime").textContent = T("Caduca en {s} s",{s:st.remaining});
+    $("pairBox").hidden = false;
+    pairTimer = setInterval(async ()=>{
+      let p; try{ p = await api("/api/pair/status"); }catch(e){ return; }
+      if(p.done){
+        clearInterval(pairTimer); pairTimer=null; $("pairBox").hidden = true;
+        toast(T("API key recibida desde el móvil ✓"),"ok",6000);
+        await refreshState(); closeSettings(); await loadLib();
+      }else if(!p.active){
+        clearInterval(pairTimer); pairTimer=null; $("pairBox").hidden = true;
+        toast(T("El código ha caducado. Pulsa de nuevo para generar otro."),"",7000);
+      }else $("pairTime").textContent = T("Caduca en {s} s",{s:p.remaining});
+    }, 1500);
+  }catch(e){ toast(e.message,"err",8000); }
+};
+
+// ---------------------------------------------------------- idioma
+function setLang(l, save){
+  LANG = l==="en" ? "en" : "es";
+  [...$("langSeg").children].forEach(b=>b.classList.toggle("act", b.dataset.l===LANG));
+  translateDom(document.body);
+  if(!$("btnAuto").disabled) $("btnAuto").textContent = T("Auto-rellenar desde SteamGridDB");
+  if(S.state) refreshState().catch(()=>{});
+  renderList();
+  if(S.sel){ renderSlots(); if(S.game) $("assetsTitle").textContent = `${T(SLOTS.find(x=>x[0]===S.slot)[1])} · ${S.game.name}`; }
+  if(S.lfiles) renderLocal();
+  if(S.cols.length) renderCols();
+  if($("settings").classList.contains("show")) openSettings();
+  if(save) api("/api/config",{lang:LANG}).catch(()=>{});
+}
+$("langSeg").onclick = e=>{ const l=e.target.dataset.l; if(l) setLang(l, true); };
 
 // ---------------------------------------------------------- biblioteca
 async function loadLib(){
@@ -346,12 +425,12 @@ function renderList(){
       <input type="checkbox" data-mark="${it.appid}" ${on(it)?"checked":""}>
       <div class="th" style="${it.art.capsule?`background-image:url('/api/art/${it.appid}/capsule?t=${S.bust}')`:""}"></div>
       <div class="nm"><b>${esc(it.name)}</b><span>${it.type==="shortcut"?"No-Steam":"Steam"} · ${it.appid}</span>
-        <div class="dots">${SLOTS.map(([k,l])=>`<i class="${it.art[k]?"y":""}" title="${l}"></i>`).join("")}</div></div>
-    </div>`).join("") : `<div class="empty">Nada por aquí.</div>`;
+        <div class="dots">${SLOTS.map(([k,l])=>`<i class="${it.art[k]?"y":""}" title="${T(l)}"></i>`).join("")}</div></div>
+    </div>`).join("") : `<div class="empty">${T("Nada por aquí.")}</div>`;
   $("bulk").hidden = !!ec || S.marked.size===0; $("bulkN").textContent = S.marked.size;
   $("editBanner").hidden = !ec;
-  $("btnSelAll").textContent = ec ? "Meter todos" : "Marcar todos";
-  if(ec){ $("ebName").textContent = "«"+ec.name+"»"; $("ebCount").textContent = ec.added.length+" juegos"; }
+  $("btnSelAll").textContent = T(ec ? "Meter todos" : "Marcar todos");
+  if(ec){ $("ebName").textContent = T("«{c}»",{c:colName(ec)}); $("ebCount").textContent = nGames(ec.added.length); }
 }
 $("list").onclick = async e=>{
   const m = e.target.dataset.mark;
@@ -366,8 +445,8 @@ $("typeSeg").onclick = e=>{ const t=e.target.dataset.t; if(!t) return; S.type=t;
   [...$("typeSeg").children].forEach(b=>b.classList.toggle("act",b.dataset.t===t)); renderList(); };
 $("btnSelAll").onclick = async ()=>{ const v=visible(), ec=editCol();
   if(ec){ const ids=v.map(i=>i.appid).filter(id=>!ec.added.includes(id));
-    if(!ids.length){ toast("Ya están todos dentro"); return; }
-    if(confirm(`¿Meter ${ids.length} juegos en «${ec.name}»?`)) await setMembers(ec, ids, true); return; }
+    if(!ids.length){ toast(T("Ya están todos dentro")); return; }
+    if(confirm(T("¿Meter {n} juegos en «{c}»?",{n:ids.length,c:colName(ec)}))) await setMembers(ec, ids, true); return; }
   const all=v.every(i=>S.marked.has(i.appid));
   v.forEach(i=> all?S.marked.delete(i.appid):S.marked.add(i.appid)); renderList(); };
 
@@ -388,15 +467,15 @@ function renderSlots(){
   if(noIcon && S.slot==="icon") S.slot="capsule";
   $("slots").innerHTML = SLOTS.filter(([k])=>!(k==="icon"&&noIcon)).map(([k,l,d])=>`
     <div class="slot ${S.slot===k?"act":""}" data-slot="${k}">
-      <div class="pv" style="${it.art[k]?`background-image:url('/api/art/${it.appid}/${k}?t=${S.bust}')`:""}">${it.art[k]?"":"vacío"}</div>
-      <div class="ft"><span><b>${l}</b><br><span class="muted">${d}</span></span>
-        ${it.art[k]?`<button data-rm="${k}" title="Quitar">✕</button>`:""}</div>
+      <div class="pv" style="${it.art[k]?`background-image:url('/api/art/${it.appid}/${k}?t=${S.bust}')`:""}">${it.art[k]?"":T("vacío")}</div>
+      <div class="ft"><span><b>${T(l)}</b><br><span class="muted">${T(d)}</span></span>
+        ${it.art[k]?`<button data-rm="${k}" title="${T("Quitar")}">✕</button>`:""}</div>
     </div>`).join("");
 }
 $("slots").onclick = async e=>{
   const rm = e.target.dataset.rm;
   if(rm){ e.stopPropagation();
-    try{ await api("/api/remove",{appid:S.sel.appid, slot:rm, kind:S.sel.type}); toast("Imagen quitada"); await loadLib(); }
+    try{ await api("/api/remove",{appid:S.sel.appid, slot:rm, kind:S.sel.type}); toast(T("Imagen quitada")); await loadLib(); }
     catch(err){ toast(err.message,"err"); } return; }
   const s = e.target.closest(".slot"); if(!s) return;
   S.slot = s.dataset.slot; renderSlots(); if(S.game) loadAssets(true); renderLocal();
@@ -409,14 +488,14 @@ async function autoSearch(){
 }
 async function doSearch(){
   const q = $("q").value.trim(); if(!q) return;
-  $("games").innerHTML = '<span class="muted">Buscando…</span>';
+  $("games").innerHTML = '<span class="muted">'+T("Buscando…")+'</span>';
   try{ const r = await api("/api/sgdb/search?q="+encodeURIComponent(q)); renderGames(r);
        if(r.length) pickGame(r[0]); else $("assetsCard").hidden = true; }
   catch(e){ $("games").innerHTML=""; toast(e.message,"err"); }
 }
 function renderGames(list){
   $("games").innerHTML = list.length ? list.map(g=>`<span class="chip" data-g="${g.id}">${esc(g.name)}${g.release_date?` <span class="muted">(${new Date(g.release_date*1000).getFullYear()})</span>`:""}${g.verified?" ✓":""}</span>`).join("")
-    : '<span class="muted">Sin resultados. Prueba con otro nombre.</span>';
+    : '<span class="muted">'+T("Sin resultados. Prueba con otro nombre.")+'</span>';
   $("games")._list = list;
 }
 $("games").onclick = e=>{ const c=e.target.closest(".chip"); if(!c) return; pickGame($("games")._list.find(g=>g.id===+c.dataset.g)); };
@@ -429,13 +508,13 @@ function pickGame(g){
 async function loadAssets(reset){
   if(reset){ S.page=0; $("assets").innerHTML=""; }
   const lbl = SLOTS.find(s=>s[0]===S.slot)[1];
-  $("assetsCard").hidden=false; $("assetsTitle").textContent = `${lbl} · ${S.game.name}`;
+  $("assetsCard").hidden=false; $("assetsTitle").textContent = `${T(lbl)} · ${S.game.name}`;
   $("assets").className = "grid "+S.slot; $("btnMore").disabled = true;
   const qs = new URLSearchParams({slot:S.slot, game:S.game.id, page:S.page,
     animated:$("fAnim").checked?1:0, humor:$("fHumor").checked?1:0, nsfw:$("fNsfw").checked?1:0});
   try{
     const r = await api("/api/sgdb/assets?"+qs);
-    if(reset && !r.length) $("assets").innerHTML = '<div class="empty">No hay imágenes de este tipo.</div>';
+    if(reset && !r.length) $("assets").innerHTML = '<div class="empty">'+T("No hay imágenes de este tipo.")+'</div>';
     $("assets").insertAdjacentHTML("beforeend", r.map(a=>`
       <div class="asset" data-url="${esc(a.url)}"><img loading="lazy" src="${esc(a.thumb)}">
         <div class="meta">${a.width}×${a.height}${a.style?" · "+esc(a.style):""}${a.author?" · "+esc(a.author):""}</div></div>`).join(""));
@@ -465,7 +544,7 @@ async function loadLocal(dir){
     const r = await api("/api/local/list"+(dir?"?dir="+encodeURIComponent(dir):""));
     S.ldir = r.dir; S.lfiles = r.files;
     $("lDir").textContent = r.dir.replace(r.home,"~");
-    $("lDirs").innerHTML = (r.parent?`<span class="chip" data-d="${esc(r.parent)}">⬆ Carpeta anterior</span>`:"")
+    $("lDirs").innerHTML = (r.parent?`<span class="chip" data-d="${esc(r.parent)}">${T("⬆ Carpeta anterior")}</span>`:"")
       + r.dirs.map(n=>`<span class="chip" data-d="${esc(r.dir+"/"+n)}">📁 ${esc(n)}</span>`).join("");
     renderLocal();
   }catch(e){ toast(e.message,"err"); }
@@ -474,21 +553,21 @@ function renderLocal(){
   if(!S.lfiles) return;
   const only = $("lFit").checked;
   const lbl = SLOTS.find(x=>x[0]===S.slot);
-  $("lHint").textContent = `Hueco actual: ${lbl[1]} (${lbl[2]}).`;
+  $("lHint").textContent = T("Hueco actual: {l} ({d}).",{l:T(lbl[1]),d:T(lbl[2])});
   const fl = S.lfiles.filter(f=>!only||fits(f));
   $("lFiles").innerHTML = fl.length ? fl.map(f=>{
     const bad = f.ext==="webp"||f.ext==="gif";
     return `<div class="asset ${fits(f)?"fit":""}" data-path="${esc(f.path)}" title="${esc(f.name)}">
       <img loading="lazy" src="/api/local/file?path=${encodeURIComponent(f.path)}">
-      ${fits(f)&&S.slot!=="logo"?'<span class="ok">encaja</span>':""}
-      <div class="meta">${esc(f.name)}${f.w?` · ${f.w}×${f.h}`:""}${bad?" · no válido en Steam":""}</div></div>`;}).join("")
-    : `<div class="empty">${S.lfiles.length?"Ninguna imagen tiene la proporción de este hueco.":"No hay imágenes en esta carpeta."}</div>`;
+      ${fits(f)&&S.slot!=="logo"?`<span class="ok">${T("encaja")}</span>`:""}
+      <div class="meta">${esc(f.name)}${f.w?` · ${f.w}×${f.h}`:""}${bad?T(" · no válido en Steam"):""}</div></div>`;}).join("")
+    : `<div class="empty">${T(S.lfiles.length?"Ninguna imagen tiene la proporción de este hueco.":"No hay imágenes en esta carpeta.")}</div>`;
 }
 $("lFit").onchange = renderLocal;
 $("lDirs").onclick = e=>{ const c=e.target.closest(".chip"); if(c) loadLocal(c.dataset.d); };
-$("lDefault").onclick = async ()=>{ try{ await api("/api/config",{images_dir:S.ldir}); toast("Esta carpeta se abrirá por defecto","ok"); }catch(e){ toast(e.message,"err"); } };
+$("lDefault").onclick = async ()=>{ try{ await api("/api/config",{images_dir:S.ldir}); toast(T("Esta carpeta se abrirá por defecto"),"ok"); }catch(e){ toast(e.message,"err"); } };
 async function applied(r){
-  toast(r.note || (S.state.mode==="live" ? "Imagen aplicada en Steam." : "Imagen instalada. Se verá al abrir Steam."), r.note?"":"ok", r.note?8000:4500);
+  toast(r.note || T(S.state.mode==="live" ? "Imagen aplicada en Steam." : "Imagen instalada. Se verá al abrir Steam."), r.note?"":"ok", r.note?8000:4500);
   await loadLib();
 }
 $("lFiles").onclick = async e=>{
@@ -511,7 +590,7 @@ $("lUpload").onchange = async ()=>{
 // ---------------------------------------------------------- auto-rellenar
 $("btnAuto").onclick = async ()=>{
   if(!S.state.has_key){ openSettings(); return; }
-  const ids=[...S.marked]; $("btnAuto").disabled=true; $("btnAuto").textContent=`Procesando ${ids.length}…`;
+  const ids=[...S.marked]; $("btnAuto").disabled=true; $("btnAuto").textContent=T("Procesando {n}…",{n:ids.length});
   let ok=0, fail=[];
   // de 5 en 5 para ir viendo progreso
   for(let i=0;i<ids.length;i+=5){
@@ -519,10 +598,10 @@ $("btnAuto").onclick = async ()=>{
       const rep = await api("/api/autofill",{appids:ids.slice(i,i+5), overwrite:$("bulkOverwrite").checked});
       rep.forEach(r=>{ if(r.error) fail.push(`${r.name}: ${r.error}`); else ok++; });
     }catch(e){ fail.push(e.message); }
-    $("btnAuto").textContent=`Procesando ${Math.min(i+5,ids.length)}/${ids.length}…`;
+    $("btnAuto").textContent=T("Procesando {n}…",{n:`${Math.min(i+5,ids.length)}/${ids.length}`});
   }
-  $("btnAuto").disabled=false; $("btnAuto").textContent="Auto-rellenar desde SteamGridDB";
-  toast(`Auto-rellenado: ${ok} correctos${fail.length?`, ${fail.length} con problemas`:""}.`, fail.length?"":"ok");
+  $("btnAuto").disabled=false; $("btnAuto").textContent=T("Auto-rellenar desde SteamGridDB");
+  toast(T("Auto-rellenado: {ok} correctos",{ok}) + (fail.length?T(", {n} con problemas",{n:fail.length}):"") + ".", fail.length?"":"ok");
   fail.slice(0,5).forEach(f=>toast(f,"err",9000));
   await loadLib();
 };
@@ -548,18 +627,20 @@ function startEdit(id){
 }
 function stopEdit(){ S.editCol=null; renderCols(); renderList(); }
 $("ebDone").onclick = stopEdit;
+function nGames(n){ return T(n===1 ? "{n} juego" : "{n} juegos", {n}); }
+function colName(c){ return c.builtin ? T(c.name) : c.name; }
 function renderCols(){
   const dis = S.state.mode==="limited" ? "disabled" : "";
   const ec = editCol();
   $("colsHelp").innerHTML = ec
-    ? `Editando <b>${esc(ec.name)}</b>: marca en la lista de la izquierda los juegos que quieras dentro. Pulsa «Terminar» cuando acabes.`
-    : `Pulsa <b>Editar juegos</b> en una colección y marca sus juegos en la lista de la izquierda.`;
+    ? T("Editando <b>{c}</b>: marca en la lista de la izquierda los juegos que quieras dentro. Pulsa «Terminar» cuando acabes.",{c:esc(colName(ec))})
+    : T("Pulsa <b>Editar juegos</b> en una colección y marca sus juegos en la lista de la izquierda.");
   $("cols").innerHTML = S.cols.map(c=>`<div class="col ${S.editCol===c.id?"editing":""}">
-      <div class="n">${esc(c.name)}<span>${c.dynamic?"dinámica (se edita en Steam)":c.added.length+" juegos"}</span></div>
+      <div class="n">${esc(colName(c))}<span>${c.dynamic?T("dinámica (se edita en Steam)"):nGames(c.added.length)}</span></div>
       ${c.dynamic?"":(S.editCol===c.id
-          ? `<button class="primary" data-stop="1">Terminar</button>`
-          : `<button class="primary" data-edit="${esc(c.id)}" ${dis}>Editar juegos</button>`)}
-      ${c.builtin||c.dynamic?"":`<button data-ren="${esc(c.id)}" ${dis}>Renombrar</button><button class="danger" data-del="${esc(c.id)}" ${dis}>Borrar</button>`}
+          ? `<button class="primary" data-stop="1">${T("Terminar")}</button>`
+          : `<button class="primary" data-edit="${esc(c.id)}" ${dis}>${T("Editar juegos")}</button>`)}
+      ${c.builtin||c.dynamic?"":`<button data-ren="${esc(c.id)}" ${dis}>${T("Renombrar")}</button><button class="danger" data-del="${esc(c.id)}" ${dis}>${T("Borrar")}</button>`}
     </div>`).join("");
 }
 $("cols").onclick = async e=>{
@@ -568,10 +649,10 @@ $("cols").onclick = async e=>{
     if(d.edit){ startEdit(d.edit); return; }
     if(d.stop){ stopEdit(); return; }
     if(d.ren){
-      const c=S.cols.find(x=>x.id===d.ren); const n=prompt("Nuevo nombre", c.name); if(!n) return;
+      const c=S.cols.find(x=>x.id===d.ren); const n=prompt(T("Nuevo nombre"), c.name); if(!n) return;
       await api("/api/collections/rename",{id:d.ren, name:n});
     }else if(d.del){
-      const c=S.cols.find(x=>x.id===d.del); if(!confirm(`¿Borrar la colección «${c.name}»? Los juegos no se borran.`)) return;
+      const c=S.cols.find(x=>x.id===d.del); if(!confirm(T("¿Borrar la colección «{c}»? Los juegos no se borran.",{c:c.name}))) return;
       if(S.editCol===d.del) S.editCol=null;
       await api("/api/collections/delete",{id:d.del});
     }else return;
@@ -582,8 +663,8 @@ $("btnNewCol").onclick = async ()=>{
   const n=$("newCol").value.trim(); if(!n) return;
   try{ const r = await api("/api/collections/create",{name:n, appids:[...S.marked]}); $("newCol").value="";
        S.marked.clear(); await loadCols();
-       if(r.id && S.cols.find(c=>c.id===r.id)){ startEdit(r.id); toast(`Colección «${n}» creada. Ahora marca sus juegos en la lista.`,"ok",7000); }
-       else toast("Colección creada","ok");
+       if(r.id && S.cols.find(c=>c.id===r.id)){ startEdit(r.id); toast(T("Colección «{c}» creada. Ahora marca sus juegos en la lista.",{c:n}),"ok",7000); }
+       else toast(T("Colección creada"),"ok");
   }catch(e){ toast(e.message,"err"); }
 };
 $("newCol").onkeydown = e=>{ if(e.key==="Enter") $("btnNewCol").click(); };
@@ -591,13 +672,13 @@ $("newCol").onkeydown = e=>{ if(e.key==="Enter") $("btnNewCol").click(); };
 // ---------------------------------------------------------- añadir no-Steam
 $("btnAdd").onclick = async ()=>{
   const name=$("aName").value.trim(), exe=$("aExe").value.trim();
-  if(!name||!exe){ toast("Nombre y ejecutable son obligatorios","err"); return; }
+  if(!name||!exe){ toast(T("Nombre y ejecutable son obligatorios"),"err"); return; }
   try{
     const r = await api("/api/shortcut/add",{name, exe, start_dir:$("aDir").value.trim(), launch_options:$("aOpts").value.trim()});
-    toast(`Añadido «${name}» (appid ${r.appid})`,"ok");
+    toast(T("Añadido «{n}» (appid {id})",{n:name,id:r.appid}),"ok");
     if($("aAuto").checked && S.state.has_key){
       const rep = await api("/api/autofill",{appids:[r.appid]});
-      if(rep[0]&&rep[0].error) toast("Carátulas: "+rep[0].error,"err"); else toast("Carátulas descargadas","ok");
+      if(rep[0]&&rep[0].error) toast(T("Carátulas: ")+rep[0].error,"err"); else toast(T("Carátulas descargadas"),"ok");
     }
     ["aName","aExe","aDir","aOpts"].forEach(id=>$(id).value="");
     await loadLib();
@@ -612,7 +693,10 @@ $("mainTabs").onclick = e=>{ const p=e.target.dataset.p; if(!p) return;
   if(p==="cols") loadCols();
 };
 
-(async ()=>{ await refreshState(); if(!S.state.has_key) openSettings(); await loadLib(); setInterval(async()=>{
+(async ()=>{ await refreshState();
+  if(S.state.lang) setLang(S.state.lang, false);
+  else setLang((navigator.language||"es").toLowerCase().startsWith("es") ? "es" : "en", true);
+  if(!S.state.has_key) openSettings(); await loadLib(); setInterval(async()=>{
   const was=S.state.mode; await refreshState().catch(()=>{});
   if(was!==S.state.mode){ if(!$("p-cols").hidden) loadCols(); if(S.sel) renderSlots(); } }, 5000); })();
 </script>
