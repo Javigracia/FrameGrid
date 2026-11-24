@@ -1,15 +1,15 @@
 # FrameGrid — Copyright (C) 2026 Javier
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""Parsers/escritores VDF de Valve (binario para shortcuts.vdf y texto para .acf/.vdf)."""
+"""Valve VDF parsers/writers (binary for shortcuts.vdf and text for .acf/.vdf)."""
 import struct
 
 
 class U64(int):
-    """Entero uint64 en VDF binario (tipo 0x07)."""
+    """uint64 integer in binary VDF (type 0x07)."""
 
 
 class F32(float):
-    """Float en VDF binario (tipo 0x03)."""
+    """Float in binary VDF (type 0x03)."""
 
 
 # ---------------------------------------------------------------- binario
@@ -46,7 +46,7 @@ def loads_binary(data: bytes) -> dict:
                 out[key] = U64(struct.unpack_from("<Q", data, pos)[0])
                 pos += 8
             else:
-                raise ValueError(f"Tipo VDF desconocido 0x{t:02x} en {pos}")
+                raise ValueError(f"Unknown VDF type 0x{t:02x} en {pos}")
         return out
 
     return read_map()
@@ -71,11 +71,11 @@ def dumps_binary(obj: dict) -> bytes:
                 buf.append(0x03); w_str(k); buf.extend(struct.pack("<f", float(v)))
             elif isinstance(v, bool) or isinstance(v, int):
                 iv = int(v)
-                if iv > 0x7FFFFFFF:  # guardar como int32 con signo
+                if iv > 0x7FFFFFFF:  # store as signed int32
                     iv -= 0x100000000
                 buf.append(0x02); w_str(k); buf.extend(struct.pack("<i", iv))
             else:
-                raise TypeError(f"No serializable en VDF: {k}={v!r}")
+                raise TypeError(f"Not serializable in VDF: {k}={v!r}")
         buf.append(0x08)
 
     w_map(obj)
