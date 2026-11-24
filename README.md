@@ -62,11 +62,11 @@ Steam cannot be closed on Steam Frame. FrameGrid therefore talks to the **runnin
 
 ### Turn it on (only once)
 
-1. Open FrameGrid and click **"Activate live mode"** (the button reads *Enable live mode* in the app). From a terminal you can run `python3 framegrid.py --enable-cef` instead. Either way, FrameGrid creates the file `~/.steam/steam/.cef-enable-remote-debugging`.
+1. Open FrameGrid and click **"Enable live mode"** (the button reads *Enable live mode* in the app). From a terminal you can run `python3 framegrid.py --enable-cef` instead. Either way, FrameGrid creates the file `~/.steam/steam/.cef-enable-remote-debugging`.
 2. **Restart the Steam Frame.** The debugger only starts when Steam starts.
 3. Open FrameGrid again. The indicator in the top-left corner should now read **"Live"**, in green.
 
-   <img src="docs/screenshots/live-mode-indicator.png" alt="FrameGrid header with the green "Live" indicator" width="300">
+   <img src="docs/screenshots/live-mode-indicator.png" alt="FrameGrid header showing the green Live indicator" width="300">
 
 
 If it still does not switch after the restart, enable the debugger from Steam's settings instead: **System → Enable Developer Mode**, then **Developer → CEF Remote Debugging**, and restart again.
@@ -99,7 +99,7 @@ FrameGrid picks the mode automatically and shows it in the top-left indicator.
 
 ## Usage
 
-1. On first launch, paste your **SteamGridDB API key** in *Settings* (Settings). It is stored in `~/.config/framegrid/config.json` with permissions 600.
+1. On first launch, paste your **SteamGridDB API key** in *Settings*. It is stored in `~/.config/framegrid/config.json` with permissions 600.
 2. **Artwork**
    1. Pick a game in the left list. The *No-Steam*, *Steam* and *All* tabs filter the list.
    2. Choose a slot: *Poster* (600×900 capsule), *Wide* (920×430 capsule), *Hero*, *Logo* or *Icon*.
