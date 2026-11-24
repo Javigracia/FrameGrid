@@ -248,7 +248,7 @@ class App:
             report.appatd(row)
         return report
 
-    # ------------------------------------------------ accesos directos
+    # ------------------------------------------------ shortcuts
     def add_shortcut(self, name, exe, start_dir="", launch_options=""):
         if self.need_write_mode() == "live":
             return self.live.add_shortcut(name, exe, start_dir, launch_options)
@@ -260,7 +260,7 @@ class App:
             return True
         return self.user().remove_shortcut(appid)
 
-    # ------------------------------------------------ colecciones
+    # ------------------------------------------------ collections
     def collections(self):
         m = self.mode()
         if m == "live":
