@@ -1,8 +1,8 @@
 # FrameGrid — Copyright (C) 2026 Javier
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""Operaciones sobre el Steam que está en marcha (vía CDP), como hace Decky.
+"""Operations on the running Steam client (via CDP), as Decky does.
 
-Funciona con Steam abierto: no hay que cerrarlo ni reiniciarlo para ver los cambios.
+Works while Steam is running: no need to close or restart it to see changes.
 """
 from __future__ import annotations
 
@@ -49,7 +49,7 @@ class SteamLive:
         t = ASSET_TYPE[slot]
         extra = ""
         if slot == "logo" and set_logo_pos:
-            # sin posición guardada, los logos de accesos directos salen en blanco (truco de decky-steamgriddb)
+            # without a saved position, shortcut logos appear blank (decky-steamgriddb workaround)
             extra = f"""
               const o = appStore.GetAppOverviewByAppID({int(appid)});
               if (o) await appDetailsStore.SaveCustomLogoPosition(o, {{pinnedPosition: 'BottomLeft', nWidthPct: 50, nHeightPct: 50}});"""
@@ -99,8 +99,8 @@ class SteamLive:
               out.push({id: c.id, name: name || c.displayName, builtin, dynamic: !!c.bIsDynamic,
                         added: ids(c)});
             };
-            push(collectionStore.GetCollection('favorite'), true, 'Favoritos');
-            push(collectionStore.GetCollection('hidden'), true, 'Ocultos');
+            push(collectionStore.GetCollection('favorite'), true, 'Favorites');
+            push(collectionStore.GetCollection('hidden'), true, 'Hidden');
             for (const c of collectionStore.userCollections) push(c, false);
             return out;""")
 
@@ -114,7 +114,7 @@ class SteamLive:
     def rename_collection(self, cid: str, name: str):
         self.cdp.run(f"""
             const c = collectionStore.GetCollection({js(cid)});
-            if (!c) throw new Error('Colección no encontrada');
+            if (!c) throw new Error('Collection not found');
             c.displayName = {js(name)};
             await c.Save(); return true;""")
 
@@ -131,7 +131,7 @@ class SteamLive:
         else:
             body = f"""
               const c = collectionStore.GetCollection({js(cid)});
-              if (!c) throw new Error('Colección no encontrada');
-              if (c.bIsDynamic) throw new Error('Las colecciones dinámicas se editan desde Steam.');
+              if (!c) throw new Error('Collection not found');
+              if (c.bIsDynamic) throw new Error('Dynamic collections must be edited in Steam.');
               collectionStore.AddOrRemoveApp({ids}, {b}, {js(cid)});"""
         self.cdp.run(body + " return true;")
