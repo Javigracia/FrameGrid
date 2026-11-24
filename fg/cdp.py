@@ -123,7 +123,7 @@ class SteamCDP:
             for t in tabs:
                 if t.get("title") == name and t.get("webSocketDebuggerUrl"):
                     return t
-        raise CDPError("Steam responde pero no encuentro su SharedJSContext")
+        raise CDPError("Steam responded, but its SharedJSContext could not be found")
 
     def available(self) -> bool:
         try:
