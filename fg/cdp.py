@@ -65,7 +65,7 @@ class _WebSocket:
             hdr.append(0x80 | 127); hdr += struct.pack(">Q", n)
         mask = os.urandom(4)
         hdr += mask
-        # enmascarado rápido con aritmética de enteros grandes
+        # fast masking using large-integer arithmetic
         m = (mask * (n // 4 + 1))[:n]
         masked = (int.from_bytes(payload, "big") ^ int.from_bytes(m, "big")).to_bytes(n, "big") if n else b""
         self.sock.sendall(bytes(hdr) + masked)
