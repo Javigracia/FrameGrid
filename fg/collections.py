@@ -2,12 +2,12 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Steam library collections (userdata/<id>/config/cloudstorage).
 
-Steam stores each collection as an entry "user-collections.<id>" en
-cloud-storage-namespace-1.json. El valor es un JSON en texto:
+Steam stores each collection as a "user-collections.<id>" entry in
+cloud-storage-namespace-1.json. The value is JSON encoded as a string:
   {"id": "uc-xxxx", "name": "Ports", "added": [appid, ...], "removed": []}
 Dynamic collections also contain "filterSpec" (they are not edited here).
-Non-Steam shortcuts use their local app IDs, so they must be edited
-on the machine itself (Steam Frame), not from another computer.
+Non-Steam shortcuts use machine-local app IDs, so they must be edited on
+the device itself (Steam Frame), not from another computer.
 """
 from __future__ import annotations
 
@@ -64,7 +64,7 @@ class Collections:
         # back up the entire folder
         if any(self.dir.iterdir()):
             root = self.dir.parent / "cloudstorage-framegrid-backups"
-            # copia "original" permanente (la primera vez que FrameGrid toca las colecciones)
+            # permanent "original" backup (the first time FrameGrid modifies collections)
             targets = []
             if not (root / "original").exists():
                 targets.append(root / "original")
@@ -97,7 +97,7 @@ class Collections:
         ns = [x for x in ns if int(x[0]) != 1] + [[1, new_ver]]
         self.ns_path.write_text(json.dumps(ns), "utf-8")
 
-        # marcar claves como pendientes de subir a la nube (si Steam usa este archivo)
+        # mark keys as pending upload to the cloud (if Steam uses this file)
         if self.mod_path.is_file():
             try:
                 mod = json.loads(self.mod_path.read_text("utf-8") or "[]")
@@ -109,7 +109,7 @@ class Collections:
             except Exception:
                 pass
 
-    # ------------------------------------------------ lookup
+    # ------------------------------------------------ consulta
     def _find(self, key):
         for pair in self._entries:
             if pair[0] == key:
@@ -203,7 +203,7 @@ class Collections:
                 if a in removed:
                     removed.remove(a)
             else:
-                # "removed" prevents cloud union-merge from adding the item again
+                # "removed" prevents the cloud's union merge from adding the item again
                 if a in added:
                     added.remove(a)
                 if a not in removed:
