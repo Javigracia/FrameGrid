@@ -113,7 +113,7 @@ section{overflow:auto;min-height:0;padding:16px 20px}
     <span class="sp"></span>
     <span class="muted" id="userLbl"></span>
     <button id="btnSettings">Settings</button>
-    <button id="btnQuit" title="Cerrar FrameGrid">Quit</button>
+    <button id="btnQuit" title="Close FrameGrid">Quit</button>
   </header>
   <div class="main">
     <aside>
@@ -222,7 +222,7 @@ section{overflow:auto;min-height:0;padding:16px 20px}
       </div>
 
       <div id="p-add" hidden>
-        <div class="warnbox limitedWarn" hidden>El modo en vivo no está activo: con Steam abierto no se pueden añadir accesos directos. Pulsa «Enable live mode» arriba y reinicia la Steam Frame.</div>
+        <div class="warnbox limitedWarn" hidden>Live mode is not active: shortcuts cannot be added while Steam is running. Click “Enable live mode” above and restart Steam Frame.</div>
         <div class="card">
           <h2>Add a non-Steam app or game</h2>
           <div class="form">
@@ -231,7 +231,7 @@ section{overflow:auto;min-height:0;padding:16px 20px}
             <label>Start directory</label><input type="text" id="aDir" placeholder="(empty = executable directory)">
             <label>Launch options</label><input type="text" id="aOpts" placeholder="">
             <span></span><div class="row"><button class="primary" id="btnAdd">Add to Steam</button>
-              <label class="chk"><input type="checkbox" id="aAuto" checked> Search carátulas al añadir</label></div>
+              <label class="chk"><input type="checkbox" id="aAuto" checked> Find artwork when adding</label></div>
           </div>
         </div>
       </div>
@@ -298,8 +298,8 @@ async function refreshState(){
 }
 $("btnCef").onclick = async ()=>{
   try{ const r = await api("/api/cef/enable",{});
-    toast("CEF debugger enabled ("+r.files.length+" archivo). Reinicia la Steam Frame y vuelve a abrir FrameGrid: el indicador pasará a «Live».","ok",12000);
-    toast("Si tras reiniciar sigue sin modo en vivo: Settings de Steam › Sistema › Modo desarrollador, y luego Desarrollador › Depuración remota CEF.","",15000);
+    toast("CEF debugger enabled ("+r.files.length+" file). Restart Steam Frame and reopen FrameGrid: the indicator will change to “Live”.","ok",12000);
+    toast("If live mode is still unavailable after restarting: Steam Settings › System › Developer Mode, then Developer › CEF Remote Debugging.","",15000);
     await refreshState(); }catch(e){ toast(e.message,"err"); }
 };
 $("btnSteam").onclick = async ()=>{
@@ -367,7 +367,7 @@ $("typeSeg").onclick = e=>{ const t=e.target.dataset.t; if(!t) return; S.type=t;
 $("btnSelAll").onclick = async ()=>{ const v=visible(), ec=editCol();
   if(ec){ const ids=v.map(i=>i.appid).filter(id=>!ec.added.includes(id));
     if(!ids.length){ toast("All games are already included"); return; }
-    if(confirm(`¿Meter ${ids.length} games en «${ec.name}»?`)) await setMembers(ec, ids, true); return; }
+    if(confirm(`Add ${ids.length} games to “${ec.name}”?`)) await setMembers(ec, ids, true); return; }
   const all=v.every(i=>S.marked.has(i.appid));
   v.forEach(i=> all?S.marked.delete(i.appid):S.marked.add(i.appid)); renderList(); };
 
@@ -553,7 +553,7 @@ function renderCols(){
   const ec = editCol();
   $("colsHelp").innerHTML = ec
     ? `Editing <b>${esc(ec.name)}</b>: marca en la lista de la izquierda los games que quieras dentro. Pulsa «Done» cuando acabes.`
-    : `Pulsa <b>Editar games</b> en una colección y marca sus games en la lista de la izquierda.`;
+    : `Click <b>Edit games</b> on a collection and select its games in the list on the left.`;
   $("cols").innerHTML = S.cols.map(c=>`<div class="col ${S.editCol===c.id?"editing":""}">
       <div class="n">${esc(c.name)}<span>${c.dynamic?"dynamic (edit in Steam)":c.added.length+" games"}</span></div>
       ${c.dynamic?"":(S.editCol===c.id
@@ -571,7 +571,7 @@ $("cols").onclick = async e=>{
       const c=S.cols.find(x=>x.id===d.ren); const n=prompt("New name", c.name); if(!n) return;
       await api("/api/collections/rename",{id:d.ren, name:n});
     }else if(d.del){
-      const c=S.cols.find(x=>x.id===d.del); if(!confirm(`¿Delete la colección «${c.name}»? Los games no se borran.`)) return;
+      const c=S.cols.find(x=>x.id===d.del); if(!confirm(`Delete the collection “${c.name}”? The games themselves will not be deleted.`)) return;
       if(S.editCol===d.del) S.editCol=null;
       await api("/api/collections/delete",{id:d.del});
     }else return;
