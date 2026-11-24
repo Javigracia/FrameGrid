@@ -1,6 +1,6 @@
 # FrameGrid — Copyright (C) 2026 Javier
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""Utilidades de imagen sin dependencias: tipo por firma y dimensiones de PNG/JPEG."""
+"""Dependency-free image utilities: detect format by signature and read PNG/JPEG dimensions."""
 from __future__ import annotations
 
 import os
@@ -24,7 +24,7 @@ def kind(data: bytes) -> str | None:
 
 
 def size(path: Path) -> tuple[int, int] | None:
-    """(ancho, alto) leyendo solo la cabecera."""
+    """(width, height), reading only the header."""
     try:
         with open(path, "rb") as f:
             head = f.read(32)
@@ -65,25 +65,25 @@ def default_pictures_dir() -> Path:
             return Path(out)
     except (OSError, subprocess.TimeoutExpired):
         pass
-    for name in ("Imágenes", "Pictures", "Imagenes"):
+    for name in ("Images", "Pictures", "Images"):
         if (home / name).is_dir():
             return home / name
     return home
 
 
 def safe_path(p: str | os.PathLike) -> Path:
-    """Solo se permiten rutas dentro de la carpeta personal."""
+    """Only paths inside the home directory are allowed."""
     home = Path.home().resolve()
     rp = Path(p).expanduser().resolve()
     if rp != home and home not in rp.parents:
-        raise PermissionError("Solo se pueden usar imágenes de tu carpeta personal.")
+        raise PermissionError("Only images from your home directory can be used.")
     return rp
 
 
 def list_dir(p: str | None) -> dict:
     d = safe_path(p) if p else default_pictures_dir()
     if not d.is_dir():
-        raise FileNotFoundError(f"No existe la carpeta {d}")
+        raise FileNotFoundError(f"Directory does not exist: {d}")
     dirs, files = [], []
     for e in sorted(d.iterdir(), key=lambda x: x.name.lower()):
         if e.name.startswith("."):
