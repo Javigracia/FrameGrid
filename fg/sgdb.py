@@ -10,7 +10,7 @@ import urllib.parse
 import urllib.request
 
 BASE = os.environ.get("FRAMEGRID_SGDB_BASE", "https://www.steamgriddb.com/api/v2")
-UA = "FrameGrid/0.4.0 (+SteamOS)"
+UA = "FrameGrid/0.5.0 (+SteamOS)"
 
 # slot -> (endpoint, dimensiones)
 SLOT_QUERY = {

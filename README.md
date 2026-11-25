@@ -29,6 +29,7 @@ On Steam Frame there is no Decky Loader, the *Manage › Set custom artwork* opt
 - **Add non-Steam apps**: add ports, Godot builds or any executable to your library, and optionally download artwork for them in the same step.
 - **English and Spanish interface**: switch with the **ES | EN** buttons in the header.
 - **Easy API key entry**: send it from your phone by scanning a QR code, paste it, or open the SteamGridDB page with one click.
+- **Built-in updater**: FrameGrid tells you when a new version is out and updates itself with one click.
 - **No dependencies**: only Python 3 and its standard library. No pacman, pip or compiling, and it runs on ARM64 and x86.
 - **Controller-friendly local web UI** with large buttons. It opens in the desktop browser or in Steam's built-in browser.
 
@@ -57,6 +58,17 @@ bash install.sh
 `install.sh` copies FrameGrid to `~/.local/share/framegrid` and adds it to the application menu and the desktop. Run `bash install.sh --uninstall` to remove it.
 
 You can also run it without installing: `python3 framegrid.py`
+
+## Updating
+
+From version 0.5.0, FrameGrid checks GitHub for a new release when it opens. If there is one, an **⬆ Update to X.Y.Z** button appears in the header:
+
+1. Press it to read what's new.
+2. Press **Update now**. FrameGrid downloads the release, verifies its SHA-256 checksum, keeps a backup of your current version in `~/.local/share/framegrid-backups/` and restarts itself. The page reloads on its own.
+
+It never updates without asking. Your API key and settings are kept. You can turn the check off, or check manually, in **Settings → Updates**. From a terminal: `python3 ~/.local/share/framegrid/framegrid.py --check-update` and `--update`.
+
+> If you run FrameGrid from a **git clone**, it won't overwrite it: update with `git pull`. Versions older than 0.5.0 don't have the updater yet, so update to 0.5.0 manually once.
 
 ## Live mode (required on Steam Frame)
 
@@ -142,6 +154,8 @@ python3 framegrid.py [--port 8787] [--open auto|xdg|steam|none] [--steam-root PA
 python3 framegrid.py --status          # current mode and diagnostics
 python3 framegrid.py --enable-cef      # enable the Steam debugger (then restart)
 python3 framegrid.py --add-to-steam    # add FrameGrid to the Steam library
+python3 framegrid.py --check-update    # check GitHub for a new version
+python3 framegrid.py --update          # download and install the latest version
 ```
 
 ## Backups
@@ -159,6 +173,8 @@ In **files mode** and **no-live mode**, FrameGrid makes backups first:
 The CEF debugger lets any program running **on the device** control the Steam client. It is the same thing Decky Loader enables on Steam Deck. FrameGrid's own server only listens on `127.0.0.1` and rejects requests coming from other websites.
 
 The **phone pairing** opens a second, temporary server on your local network, only while the QR code is on screen. Its address contains a random one-time code, and it closes as soon as it receives a valid key, after 5 minutes, or after 10 failed attempts. The key travels over your home Wi-Fi without encryption, so only use it on a network you trust; otherwise use *Paste*.
+
+The **updater** only downloads from this repository's official releases over HTTPS. It checks the SHA-256 checksum published with each release, refuses zips with paths outside their folder, checks that the version inside matches the release, and only runs when you press *Update now*.
 
 To turn the debugger off, delete `~/.steam/steam/.cef-enable-remote-debugging` and restart.
 

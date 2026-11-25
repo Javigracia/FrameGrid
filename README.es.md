@@ -29,6 +29,7 @@ En la Steam Frame no hay Decky Loader, no aparece la opción *Administrar › Ca
 - **Añadir apps no-Steam**: añade ports, builds de Godot o cualquier ejecutable a la biblioteca y, si quieres, descarga sus carátulas en el mismo paso.
 - **Interfaz en español e inglés**: se cambia con los botones **ES | EN** de la cabecera.
 - **API key fácil de introducir**: envíala desde el móvil escaneando un código QR, pégala o abre la página de SteamGridDB con un clic.
+- **Actualizador integrado**: FrameGrid avisa cuando hay una versión nueva y se actualiza con un clic.
 - **Sin dependencias**: solo usa Python 3 y su librería estándar. No hace falta pacman, pip ni compilar, y funciona en ARM64 y x86.
 - **Interfaz web local** con botones grandes, cómoda con mando. Se abre en el navegador del escritorio o en el navegador interno de Steam.
 
@@ -57,6 +58,17 @@ bash install.sh
 `install.sh` copia FrameGrid en `~/.local/share/framegrid` y lo añade al menú de aplicaciones y al escritorio. Para desinstalarlo: `bash install.sh --uninstall`.
 
 También puedes ejecutarlo sin instalar: `python3 framegrid.py`
+
+## Actualizar
+
+Desde la versión 0.5.0, FrameGrid comprueba en GitHub si hay una versión nueva al abrirse. Si la hay, aparece el botón **⬆ Actualizar a X.Y.Z** en la cabecera:
+
+1. Púlsalo para leer las novedades.
+2. Pulsa **Actualizar ahora**. FrameGrid descarga la versión, comprueba su suma SHA-256, guarda una copia de tu versión actual en `~/.local/share/framegrid-backups/` y se reinicia solo. La página se recarga sola.
+
+Nunca se actualiza sin preguntar. Tu API key y tus ajustes se conservan. Puedes desactivar la comprobación, o buscar a mano, en **Ajustes → Actualizaciones**. Desde una terminal: `python3 ~/.local/share/framegrid/framegrid.py --check-update` y `--update`.
+
+> Si ejecutas FrameGrid desde un **clon de git**, no lo sobrescribe: actualiza con `git pull`. Las versiones anteriores a la 0.5.0 aún no tienen el actualizador, así que hay que actualizar a la 0.5.0 a mano una vez.
 
 ## Modo en vivo (imprescindible en Steam Frame)
 
@@ -142,6 +154,8 @@ python3 framegrid.py [--port 8787] [--open auto|xdg|steam|none] [--steam-root RU
 python3 framegrid.py --status          # modo actual y diagnóstico
 python3 framegrid.py --enable-cef      # activa el depurador de Steam (luego reinicia)
 python3 framegrid.py --add-to-steam    # añade FrameGrid a la biblioteca de Steam
+python3 framegrid.py --check-update    # comprueba si hay versión nueva en GitHub
+python3 framegrid.py --update          # descarga e instala la última versión
 ```
 
 ## Copias de seguridad
@@ -159,6 +173,8 @@ En **modo archivos** y en **sin modo en vivo**, FrameGrid hace antes una copia d
 El depurador CEF permite que cualquier programa que se ejecute **en el propio dispositivo** controle el cliente de Steam. Es lo mismo que activa Decky Loader en la Steam Deck. El servidor de FrameGrid solo escucha en `127.0.0.1` y rechaza peticiones que vengan de otras webs.
 
 El **envío desde el móvil** abre un segundo servidor temporal en tu red local, solo mientras el código QR está en pantalla. Su dirección lleva un código secreto de un solo uso, y se cierra en cuanto recibe una clave válida, a los 5 minutos o tras 10 intentos fallidos. La clave viaja por tu wifi sin cifrar, así que úsalo solo en una red de confianza; si no, usa *Pegar*.
+
+El **actualizador** solo descarga de las releases oficiales de este repositorio, por HTTPS. Comprueba la suma SHA-256 publicada con cada release, rechaza zips con rutas fuera de su carpeta, comprueba que la versión de dentro coincide con la de la release y solo actúa cuando pulsas *Actualizar ahora*.
 
 Para desactivar el depurador, borra `~/.steam/steam/.cef-enable-remote-debugging` y reinicia.
 

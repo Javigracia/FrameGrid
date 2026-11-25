@@ -135,6 +135,22 @@ const I18N = {en: {
   "Cancelar": "Cancel",
   "Guardar": "Save",
   "Ajustes guardados": "Settings saved",
+  // actualizaciones
+  "Actualizaciones": "Updates",
+  "Buscar actualizaciones al abrir FrameGrid": "Check for updates when FrameGrid opens",
+  "Buscar ahora": "Check now",
+  "Actualización disponible": "Update available",
+  "Ver en GitHub": "View on GitHub",
+  "Más tarde": "Later",
+  "Actualizar ahora": "Update now",
+  "⬆ Actualizar a {v}": "⬆ Update to {v}",
+  "Ya tienes la última versión ({v}).": "You already have the latest version ({v}).",
+  "Versión instalada: {a} → nueva: {b}": "Installed version: {a} → new: {b}",
+  "FrameGrid se ejecuta desde un repositorio git: actualiza con «git pull».": "FrameGrid is running from a git repository: update it with \"git pull\".",
+  "Descargando e instalando… no cierres FrameGrid.": "Downloading and installing… don't close FrameGrid.",
+  "Instalado y verificado (SHA-256). Reiniciando FrameGrid…": "Installed and verified (SHA-256). Restarting FrameGrid…",
+  "Instalado. Reiniciando FrameGrid…": "Installed. Restarting FrameGrid…",
+  "FrameGrid no ha vuelto a arrancar solo. Ábrelo de nuevo desde el menú de aplicaciones.": "FrameGrid didn't restart by itself. Open it again from the application menu.",
 }};
 
 let LANG = "es";

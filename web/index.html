@@ -101,6 +101,9 @@ section{overflow:auto;min-height:0;padding:16px 20px}
 .srcTabs{display:flex;gap:6px;margin-bottom:10px}
 .seg.lang button{min-height:34px;padding:4px 10px;font-size:13px}
 .seg.lang button.act{background:var(--acc);color:#04121f;border-color:var(--acc)}
+button.upd{border-color:var(--ok);color:var(--ok);font-weight:600}
+.notes{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 14px;max-height:42vh;overflow:auto;white-space:pre-wrap;font-size:14px;line-height:1.5}
+.notes code{background:var(--panel2);padding:1px 5px;border-radius:4px}
 .pairbox{display:flex;gap:16px;align-items:center;background:var(--bg);border:1px solid var(--acc);border-radius:10px;padding:12px}
 .pairbox img{width:190px;height:190px;border-radius:6px;background:#fff;flex:none}
 .srcTabs button.act{background:var(--acc);color:#04121f;border-color:var(--acc)}
@@ -116,6 +119,7 @@ section{overflow:auto;min-height:0;padding:16px 20px}
     <button id="btnSteam" hidden>Abrir Steam</button>
     <span class="sp"></span>
     <span class="muted" id="userLbl" data-noi18n></span>
+    <button class="upd" id="btnUpdate" hidden data-noi18n></button>
     <div class="seg lang" id="langSeg" data-noi18n><button data-l="es">ES</button><button data-l="en">EN</button></div>
     <button id="btnSettings">Ajustes</button>
     <button id="btnQuit" title="Cerrar FrameGrid">Salir</button>
@@ -272,9 +276,27 @@ section{overflow:auto;min-height:0;padding:16px 20px}
       <label>Carpeta de Steam <span class="muted">(vacío = autodetectar)</span></label>
       <input type="text" id="sRoot">
       <div class="muted" id="sRootNow" data-noi18n></div>
+      <label><b>Actualizaciones</b></label>
+      <div class="row" style="justify-content:space-between">
+        <label class="chk"><input type="checkbox" id="sUpdCheck"> Buscar actualizaciones al abrir FrameGrid</label>
+        <button id="sUpdNow">Buscar ahora</button>
+      </div>
     </div>
     <div class="row" style="justify-content:flex-end;margin-top:14px">
       <button id="sCancel">Cancelar</button><button class="primary" id="sSave">Guardar</button>
+    </div>
+  </div>
+</div>
+<div class="modal" id="updModal">
+  <div class="card">
+    <h2>Actualización disponible</h2>
+    <div class="muted" id="updVers" data-noi18n style="margin-bottom:10px"></div>
+    <div class="notes" id="updNotes" data-noi18n></div>
+    <div class="muted" id="updStatus" data-noi18n style="margin-top:10px"></div>
+    <div class="row" style="justify-content:flex-end;margin-top:14px">
+      <button id="updGithub">Ver en GitHub</button>
+      <button id="updLater">Más tarde</button>
+      <button class="primary" id="updGo">Actualizar ahora</button>
     </div>
   </div>
 </div>
@@ -338,6 +360,7 @@ function openSettings(){
   $("sKey").value = "";
   $("sKey").placeholder = T(S.state.has_key ? "•••••• (guardada; escribe para cambiarla)" : "pega aquí tu API key");
   $("sUser").innerHTML = (S.state.users||[]).map(u=>`<option value="${u.id}" ${u.id===S.state.user?"selected":""}>${esc(u.name)} — ${u.id}</option>`).join("");
+  $("sUpdCheck").checked = S.state.update_check !== false;
   $("sRoot").value = ""; $("sRootNow").textContent = T("Detectada: {p}",{p:S.state.steam_root||T("ninguna")});
   $("settings").classList.add("show");
 }
@@ -389,6 +412,63 @@ $("sPhone").onclick = async ()=>{
   }catch(e){ toast(e.message,"err",8000); }
 };
 
+// ---------------------------------------------------------- actualizaciones
+S.upd = null;
+function mdLite(t){
+  return esc(t).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/`([^`]+)`/g,"<code>$1</code>")
+    .replace(/^\s*[-*] /gm,"• ").replace(/\[([^\]]+)\]\([^)]+\)/g,"$1");
+}
+function showUpdateButton(){
+  const u=S.upd; $("btnUpdate").hidden = !(u && u.available);
+  if(u && u.available) $("btnUpdate").textContent = T("⬆ Actualizar a {v}",{v:u.latest});
+}
+async function checkUpdate(force){
+  try{
+    S.upd = await api("/api/update/check"+(force?"?force=1":""));
+    showUpdateButton();
+    if(force){
+      if(S.upd.error) toast(S.upd.error,"err",8000);
+      else if(S.upd.available) openUpdate();
+      else toast(T("Ya tienes la última versión ({v}).",{v:S.upd.current}),"ok");
+    }
+  }catch(e){ if(force) toast(e.message,"err"); }
+}
+function openUpdate(){
+  const u=S.upd; if(!u) return;
+  $("updVers").textContent = T("Versión instalada: {a} → nueva: {b}",{a:u.current,b:u.latest});
+  $("updNotes").innerHTML = mdLite(u.notes||"");
+  $("updStatus").textContent = u.git ? T("FrameGrid se ejecuta desde un repositorio git: actualiza con «git pull».") : "";
+  $("updGo").disabled = !!u.git; $("updLater").disabled = false;
+  $("updModal").classList.add("show");
+}
+$("btnUpdate").onclick = openUpdate;
+$("updLater").onclick = ()=>$("updModal").classList.remove("show");
+$("updGithub").onclick = ()=>{ if(S.upd&&S.upd.url) window.open(S.upd.url,"_blank","noopener"); };
+$("updGo").onclick = async ()=>{
+  const target = S.upd.latest;
+  $("updGo").disabled = true; $("updLater").disabled = true;
+  $("updStatus").textContent = T("Descargando e instalando… no cierres FrameGrid.");
+  let res;
+  try{ res = await api("/api/update/apply",{}); }
+  catch(e){ $("updStatus").textContent = e.message; $("updLater").disabled = false; $("updGo").disabled = false; return; }
+  $("updStatus").textContent = T(res.verified ? "Instalado y verificado (SHA-256). Reiniciando FrameGrid…" : "Instalado. Reiniciando FrameGrid…");
+  const t0 = Date.now();
+  const poll = setInterval(async ()=>{
+    try{
+      const st = await fetch("/api/state",{cache:"no-store"}).then(r=>r.json());
+      if(st.version === target){ clearInterval(poll); location.reload(); }
+    }catch(e){ /* reiniciándose */ }
+    if(Date.now()-t0 > 60000){ clearInterval(poll);
+      $("updStatus").textContent = T("FrameGrid no ha vuelto a arrancar solo. Ábrelo de nuevo desde el menú de aplicaciones."); }
+  }, 1000);
+};
+$("sUpdNow").onclick = ()=>checkUpdate(true);
+$("sUpdCheck").onchange = async ()=>{
+  try{ S.state = await api("/api/update/setting",{enabled:$("sUpdCheck").checked});
+       if(!S.state.update_check){ S.upd=null; showUpdateButton(); } else checkUpdate(false); }
+  catch(e){ toast(e.message,"err"); }
+};
+
 // ---------------------------------------------------------- idioma
 function setLang(l, save){
   LANG = l==="en" ? "en" : "es";
@@ -401,6 +481,7 @@ function setLang(l, save){
   if(S.lfiles) renderLocal();
   if(S.cols.length) renderCols();
   if($("settings").classList.contains("show")) openSettings();
+  showUpdateButton(); if($("updModal").classList.contains("show")) openUpdate();
   if(save) api("/api/config",{lang:LANG}).catch(()=>{});
 }
 $("langSeg").onclick = e=>{ const l=e.target.dataset.l; if(l) setLang(l, true); };
@@ -696,7 +777,7 @@ $("mainTabs").onclick = e=>{ const p=e.target.dataset.p; if(!p) return;
 (async ()=>{ await refreshState();
   if(S.state.lang) setLang(S.state.lang, false);
   else setLang((navigator.language||"es").toLowerCase().startsWith("es") ? "es" : "en", true);
-  if(!S.state.has_key) openSettings(); await loadLib(); setInterval(async()=>{
+  if(!S.state.has_key) openSettings(); await loadLib(); checkUpdate(false); setInterval(async()=>{
   const was=S.state.mode; await refreshState().catch(()=>{});
   if(was!==S.state.mode){ if(!$("p-cols").hidden) loadCols(); if(S.sel) renderSlots(); } }, 5000); })();
 </script>

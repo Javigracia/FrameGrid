@@ -17,6 +17,7 @@ import socket
 import subprocess
 import sys
 import threading
+import time
 import urllib.parse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -31,8 +32,9 @@ from fg import imgutil  # noqa: E402
 import base64  # noqa: E402
 from fg.i18n import tr  # noqa: E402
 from fg.pairing import Pairing  # noqa: E402
+from fg.updater import Updater, UpdateError  # noqa: E402
 
-VERSION = "0.4.0"
+VERSION = "0.5.0"
 CONFIG_DIR = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config")) / "framegrid"
 CONFIG_FILE = CONFIG_DIR / "config.json"
 
@@ -66,6 +68,9 @@ class App:
             self.cfg["steam_root"] = steam_root_override
         self.lock = threading.Lock()
         self.pairing = Pairing(self.set_api_key, tr)
+        self.updater = Updater(VERSION, HERE)
+        self.port = None
+        self.steam_root_arg = steam_root_override
 
     @property
     def root(self):
@@ -158,6 +163,7 @@ class App:
             "mode": self.mode(),
             "cef_flag": any(f.exists() for f in self.cef_flag_paths()),
             "has_key": bool(self.cfg.get("api_key")),
+            "update_check": not self.cfg.get("skip_update_check"),
             "lang": self.cfg.get("lang"),
         }
 
@@ -430,6 +436,11 @@ def make_handler(app: App, stop_event: threading.Event):
                     return self._file(f)
                 if p == "/api/collections":
                     return self._json(app.collections())
+                if p == "/api/update/check":
+                    force = q.get("force") == "1"
+                    if app.cfg.get("skip_update_check") and not force:
+                        return self._json({"current": VERSION, "available": False, "disabled": True})
+                    return self._json(app.updater.check(force=force))
                 if p == "/api/pair/status":
                     st = app.pairing.status()
                     st["has_key"] = bool(app.cfg.get("api_key"))
@@ -467,6 +478,16 @@ def make_handler(app: App, stop_event: threading.Event):
                         st = app.state()
                         st["warning"] = warn
                         return self._json(st)
+                    if p == "/api/update/apply":
+                        res = app.updater.apply()
+                        app.pairing.stop()
+                        self._json(res)
+                        threading.Thread(target=restart_into, args=(app, res["restart_from"]), daemon=True).start()
+                        return
+                    if p == "/api/update/setting":
+                        app.cfg["skip_update_check"] = not bool(b.get("enabled", True))
+                        save_config({k: v for k, v in app.cfg.items() if v})
+                        return self._json(app.state())
                     if p == "/api/pair/start":
                         return self._json(app.pairing.start(self._lang()))
                     if p == "/api/pair/stop":
@@ -520,6 +541,18 @@ def free_port(start):
     raise RuntimeError("No hay puertos libres")
 
 
+def restart_into(app: "App", script: str):
+    """Sustituye este proceso por la versión recién instalada, en el mismo puerto y sin abrir otra pestaña."""
+    time.sleep(1.0)  # deja salir la respuesta HTTP
+    if not Path(script).is_file():
+        script = str(HERE / "framegrid.py")
+    args = [sys.executable, script, "--open", "none", "--port", str(app.port)]
+    if app.steam_root_arg:
+        args += ["--steam-root", app.steam_root_arg]
+    sys.stdout.flush()
+    os.execv(sys.executable, args)
+
+
 def open_ui(url: str, mode: str):
     """mode: auto | xdg | steam | none"""
     if mode == "none":
@@ -549,10 +582,28 @@ def main():
     ap.add_argument("--enable-cef", action="store_true",
                     help="crea .cef-enable-remote-debugging; luego hay que reiniciar la Steam Frame")
     ap.add_argument("--status", action="store_true", help="muestra el modo de trabajo y sale")
+    ap.add_argument("--check-update", action="store_true", help="comprueba si hay una versión nueva en GitHub")
+    ap.add_argument("--update", action="store_true", help="descarga e instala la última versión de GitHub")
     ap.add_argument("--version", action="version", version=VERSION)
     args = ap.parse_args()
 
     app = App(args.steam_root)
+    if args.check_update:
+        info = app.updater.check(force=True)
+        if info.get("error"):
+            print(info["error"]); sys.exit(1)
+        print(f"Versión instalada: {VERSION} · última en GitHub: {info.get('latest')}"
+              + ("  → hay actualización (python3 framegrid.py --update)" if info.get("available") else "  → al día"))
+        return
+    if args.update:
+        try:
+            res = app.updater.apply()
+        except UpdateError as e:
+            print(e); sys.exit(1)
+        print(f"Actualizado a {res['version']} ({'SHA-256 verificado' if res['verified'] else 'sin archivo .sha256'}).")
+        if res.get("backup"):
+            print("Copia de la versión anterior:", res["backup"])
+        return
     if args.status:
         st = app.state()
         print(f"Steam: {st['steam_root']}  usuario: {st['user']}  abierto: {st['steam_running']}")
@@ -581,6 +632,9 @@ def main():
     port = free_port(args.port)
     stop = threading.Event()
     srv = ThreadingHTTPServer(("127.0.0.1", port), make_handler(app, stop))
+    app.port = port
+    if not app.cfg.get("skip_update_check"):
+        threading.Thread(target=app.updater.check, daemon=True).start()  # precalienta la caché
     url = f"http://127.0.0.1:{port}/"
     print(f"FrameGrid {VERSION} en {url}  (Ctrl+C para salir)")
     threading.Thread(target=srv.serve_forever, daemon=True).start()
